@@ -367,7 +367,7 @@
 /// #example(```typ
 /// >>> // #thm-counter.update(0)
 /// >>> // #set heading(numbering: "1.1.")
-/// #show ref: theoretical.show-ref
+/// #show ref: theoretic.show-ref
 /// #theorem(label: <fact>, supplement: "Fact")[#lorem(2)]
 /// #theorem(label: <pythagoras>, title: "Pythagoras")[#lorem(2)]
 /// #theorem(label: <zl>, title: "Only Named", number: none)[#lorem(2)]

@@ -1,7 +1,7 @@
 #import "@preview/tidy:0.4.1"
-#import "lib.typ" as theoretical
+#import "lib.typ" as theoretic
 
-#let example = tidy.styles.default.show-example.with(scope: (theoretical: theoretical,), preamble: "#import theoretical: *\n", scale-preview: 100%)//, dir: ttb)
+#let example = tidy.styles.default.show-example.with(scope: (theoretic: theoretic,), preamble: "#import theoretic: *\n", scale-preview: 100%)//, dir: ttb)
 
 #set par(justify: true)
 #set heading(numbering: "1.1")
@@ -21,9 +21,9 @@
   block(height: height, content)
 })
 
-#show ref: theoretical.show-ref
+#show ref: theoretic.show-ref
 
-#block(spacing: 30pt)[#text(size: 30pt)[Theoretical]]
+#block(spacing: 30pt)[#text(size: 30pt)[Theoretic]]
 
 #heading(outlined: false, numbering: none)[Contents]
 #{
@@ -109,7 +109,7 @@
     })
   }
   
-  balance(columns(2, theoretical.toc()))
+  balance(columns(2, theoretic.toc()))
 }
 
 #show link: it => {
@@ -142,15 +142,15 @@ Default theorem environment and provided presets:
   ]
   ```)
 
-References can be controlled by passing some specific supplements, see #ref(label("theoretical-show-ref()")) for more details.
+References can be controlled by passing some specific supplements, see #ref(label("theoretic-show-ref()")) for more details.
 
 = Setup
 Put the following at the top of your document:
 ```typ
-  #import "@preview/theoretical:0.1.0" as theoretical: theorem, proof, qed
+  #import "@preview/theoretic:0.1.0" as theoretic: theorem, proof, qed
 
   // Otherwise, references won't work.
-  #show ref: theoretical.show-ref
+  #show ref: theoretic.show-ref
 
   // set up your needed presets
   #let corollary = theorem.with(kind: "corollary", supplement: "Corollary")
@@ -158,18 +158,18 @@ Put the following at the top of your document:
   // ..etc
   ```
 
-See #ref(label("theoretical-theorem()")) for a detailed description of customization options.
+See #ref(label("theoretic-theorem()")) for a detailed description of customization options.
 
-Except for ```typ #show ref: theoretical.show-ref```, no "setup" is neccesary. All configuration is achieved via parameters on the #ref(label("theoretical-theorem()")) function, use ```typc theorem.with(..)``` for your preset needs.
+Except for ```typ #show ref: theoretic.show-ref```, no "setup" is neccesary. All configuration is achieved via parameters on the #ref(label("theoretic-theorem()")) function, use ```typc theorem.with(..)``` for your preset needs.
 
 The numbering of theorems is not configurable, but can be disabled (`number: none`) or temporarily overridden (`number: "X"` or `number: 2`).
 If your headings are numbered, it will use top-level heading numbers as the first component, otherwise it will simply number your theorems starting with Theorem 1.
 
-Use #link(label("theoretical-toc()"))[```typ #theoretical.toc()```] to get a list of theorems, list of definitions, a table of contents containg theorems, etc.
+Use #link(label("theoretic-toc()"))[```typ #theoretic.toc()```] to get a list of theorems, list of definitions, a table of contents containg theorems, etc.
 
-Put ```typ #theoretical.solutions()``` at the end of your document to get the solutions (every theorem environent accepts a second positional arguments, which gets used as the solution).
+Put ```typ #theoretic.solutions()``` at the end of your document to get the solutions (every theorem environent accepts a second positional arguments, which gets used as the solution).
 (Nothing will appear unless there are solutions to show.)
-#theoretical.theorem(kind: "exercise", supplement: "Exercise")[
+#theoretic.theorem(kind: "exercise", supplement: "Exercise")[
   Go look for the solution of this exercise at the end of this document.
 ][
   Yay! you found it!
@@ -185,7 +185,7 @@ Put ```typ #theoretical.solutions()``` at the end of your document to get the so
 
 #pagebreak(weak: true)
 = Examples
-#theoretical.theorem(
+#theoretic.theorem(
   kind: "example", supplement: "Example",
   title: "A complicated example showing some configuration possibilities"
 )[
@@ -245,9 +245,9 @@ Put ```typ #theoretical.solutions()``` at the end of your document to get the so
 
 #let docs = tidy.parse-module(
   read("lib.typ"),
-  name: "theoretical",
-  scope: (theoretical: theoretical),
-  preamble: "#import theoretical: *\n#set heading(outlined: false)\n",
+  name: "theoretic",
+  scope: (theoretic: theoretic),
+  preamble: "#import theoretic: *\n#set heading(outlined: false)\n",
 )
 
 #tidy.show-module(
@@ -263,4 +263,4 @@ Put ```typ #theoretical.solutions()``` at the end of your document to get the so
   // sort-functions: false,
 )
 
-#theoretical.solutions()
+#theoretic.solutions()
