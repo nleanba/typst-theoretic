@@ -10,7 +10,11 @@
 #set table(inset: 7pt, stroke: (0.5pt + luma(90%)))
 #show table: set align(left)
 #show table.cell.where(y: 0): smallcaps
-#set page(numbering: "1", columns: 1)
+#set page(
+  numbering: "1",
+  columns: 1,
+  footer: align(center)[#context counter(page).display(page.numbering)], // why is this neccesary? idk???
+)
 
 /// Balance columns
 #let balance(content) = layout(size => {
@@ -175,6 +179,143 @@ Put ```typ #theoretic.solutions()``` at the end of your document to get the solu
   Yay! you found it!
 ]
 
+= Proofs / QED
+If a proof ends with text, nothing needs to be done.
+#example(```typ
+  #proof[#lorem(5)]
+  ```)
+If a proof ends with a list or some other full-width block, simply put a ```typc qed()``` at the end of it.
+#example(```typ
+  // Bad
+  #proof[- #lorem(5)]
+
+  // Good
+  #proof[- #lorem(5)#qed()]
+  ```)
+
+However, if it ends with a displayed (block) equation, things get tricky.
+
+It does not seem possible to place the qed from within the equation directly. However, we can use it as the "number" of the equation instead. (This breaks, of course, if you want the equation itself numbered also -- but in that case the wed has to go someplace else anyway)
+// I have not yet been able to figure out a way to elegantly place a QED in this situation from within the equation. Here are a couple of possible workarounds:
+#[#set par(justify: false)
+#example(```typ
+  #proof[
+    #lorem(5)
+    #set math.equation(numbering: (..) => {qed()}, number-align: bottom)
+    $ x &= y \ &= sqrt(sum_(4/a_k)^oo a_n). $
+  ]
+  ```)]
+
+// (Using a grid or stack des not allow proper alignment)
+
+(Note: use ```typc qed()``` instead of ```typc $square$``` so the proof environment knows that _it_ doesn't need to place one.)
+
+  // Bad
+  // #proof[
+  //   #lorem(5)
+  //   $ x = y . $
+  // ]
+
+  // // Using inline math
+  // #proof[
+  //   #lorem(5)
+  //   #v(0.5em)#hide(qed())$display( x = sqrt( sum^(oo) a_n ) . )$#qed()
+  // ]
+  // // But this doesn't work for multiline equations
+  // #proof[
+  //   #lorem(5)
+  //   #v(0.5em)#hide(qed())$display( x &= y \ &= sqrt( sum^(oo) a_n ) . )$#qed()
+  // ]
+  // // But this doesn't work for multiline equations
+  // #proof[
+  //   #lorem(5)
+  //   #v(0.5em)#box(width: 1fr, $display( #hide(qed()) x &= y \ &= sqrt( sum^(oo) a_n ) .#h(1fr)#qed() )$)
+  // ]
+  // // ?
+
+//   // For perfect alignment, repeat the last line of the equation invisibly.
+//   #proof[
+//     #lorem(5)
+//     #v(0.5em)#hide(qed())$ x &= y \ &= sqrt( sum^(oo) a_n ) .$..$display( sqrt( sum^(oo) a_n ) . )$#qed()
+//   ]
+
+//   // Using grid
+//   #proof[
+//     #lorem(5)
+//     #grid(
+//       align: horizon,
+//       columns: (1fr, auto, 1fr),
+//       [], $ x = sqrt( sum^(oo) a_n ) . $, qed()
+//     )
+//   ]
+//   // But this doesn't work for multiline equations
+//   #proof[
+//     #lorem(5)
+//     #grid(
+//       align: horizon,
+//       columns: (1fr, auto, 1fr),
+//       [], $ x &= y \ &= sqrt( sum^(oo) a_n ) . $, qed()
+//     )
+//   ]
+//   ```)
+
+// Broken: I consider it a typs bug that the text edges do affetc the visual sizes of the box, but not the measure ones.
+// #context {
+//   let eq = $display( x = sqrt( sum_(n_(n_(n_(n_k))))^(oo) a_n )^7 . ) $
+//   let eq-h = measure(eq).height
+//   eq
+//   box(fill: yellow, eq)
+//   box(width: 4pt, height: eq-h, fill: red)
+//   [#eq-h \ ]
+
+//   // let eq3a = rect(box(fill: green, clip: true, eq), fill: blue, inset: 10pt)
+//   // let eq3a-h = measure(eq3a).height
+//   // box(eq3a)
+//   // box(width: 4pt, height: eq3a-h, fill: red)
+
+//   // set text(bottom-edge: "bounds", top-edge: "bounds")
+//   let eq3 = text(bottom-edge: "bounds", top-edge: "bounds", eq) // pad(stack(dir: ttb, box(fill: green, clip: true, eq)))
+//   let eq3-h = measure(eq3).height
+//   [.]
+//   box(eq3, fill: gray)
+//   [.]
+//   box(width: 4pt, height: eq3-h, fill: red)
+//   [ #eq3-h ]
+//   // set text(top-edge: "cap-height", bottom-edge: "baseline") // default
+
+//   // set text(bottom-edge: "bounds", top-edge: "bounds")
+//   let eq3c = text(top-edge: "bounds", eq) // pad(stack(dir: ttb, box(fill: green, clip: true, eq)))
+//   let eq3c-h = measure(eq3c).height
+//   [.]
+//   box(eq3c, fill: gray)
+//   [.]
+//   box(width: 4pt, height: eq3c-h, fill: red)
+//   [ #eq3c-h ]
+//   // set text(top-edge: "cap-height", bottom-edge: "baseline") // default
+  
+
+//   let eq2 = rect(stroke: none, inset: 0pt, fill: aqua, eq)
+//   let eq2-h = measure(eq2).height
+//   box(eq2)
+//   [.]
+//   box(width: 4pt, height: eq3-h - eq2-h, fill: red)
+//   [.]
+//   box(width: 4pt, height: eq2-h, fill: red)
+//   [.$x$]
+//   box(eq, baseline: eq3-h - eq2-h)
+//   [.]
+//   eq
+//   [. #eq2-h ]
+
+//   theoretic.proof[
+//     #grid(
+//       align: bottom,
+//       columns: (1fr, auto, 1fr),
+//       [], eq, {theoretic.qed(); v(eq3-h - eq2-h)}
+//     )
+//   ]
+// }
+
 // = Open TODOs
 // - Ability to reference enumerations within theorem ("See Proposition 2.25 (a)")
 // - Copy what #link("https://github.com/sahasatvik/typst-theorems/blob/ebaa938c8911cdd89bf9ba51eaf91b017302b010/theorems.typ#L254", "ctheorems") did for ```typ #qed-here```.
@@ -237,7 +378,7 @@ Put ```typ #theoretic.solutions()``` at the end of your document to get the solu
   )
 ]
 
-#set page(numbering: (.., i) => { smallcaps("a"); str(i) }, columns: 1)
+#set page(numbering: (.., i) => { smallcaps("a"); str(i); }, columns: 1)
 #counter(page).update(1)
 #set heading(numbering: "A.1")
 #counter(heading).update(0)
