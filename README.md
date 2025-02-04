@@ -22,3 +22,5 @@ Example Usage:
 ```
 
 [Full manual: ![first page of the documentation](https://github.com/nleanba/typst-theoretic/raw/refs/heads/main/preview.svg)](https://github.com/nleanba/typst-theoretic/blob/main/main.pdf)
+
+<!-- [Full manual: ![first page of the documentation](https://github.com/nleanba/typst-theoretic/raw/refs/tags/v0.1.1/preview.svg)](https://github.com/nleanba/typst-theoretic/blob/v0.1.0/main.pdf) ->
