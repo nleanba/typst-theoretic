@@ -4,7 +4,7 @@
 
 Example Usage:
 ```typ
-  #import "@preview/theoretic:0.1.0": *
+  #import "@preview/theoretic:0.1.0" as theoretic: theorem, proof, qed
 
   // Otherwise, references won't work.
   #show ref: theoretic.show-ref
@@ -15,7 +15,10 @@ Example Usage:
   // ..etc
 
   // use
-  #corollary[]
+  #theorem(title: [Important Theorem])[#lorem(5)]
+  #corollary[#lorem(5)]
+  #example[#lorem(5)]
+  // ..etc
 ```
 
 [Full manual: ![first page of the documentation](https://github.com/nleanba/typst-theoretic/raw/refs/heads/main/preview.svg)](https://github.com/nleanba/typst-theoretic/blob/main/main.pdf)
