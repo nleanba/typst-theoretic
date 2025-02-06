@@ -89,7 +89,7 @@
   }
   show outline.entry.where(level: 4): it => {
     set text(size: 8pt, fill: luma(20%))
-    h(37pt)
+    h(40pt)
     link(it.element.location(), context {
       if it.body.has("children") {
         let supp = text(font: "Besley*", stretch: 85%, array(it.body.children).slice(0, 3).join())
@@ -127,6 +127,7 @@
   )
 }
 
+
 = Summary
 
 This package provides opinionated functions to create theorems and similar environments.
@@ -135,14 +136,12 @@ Default theorem environment and provided presets:
 #example(```typ
   #theorem[This is a theorem]
   #proof[This is a proof.]
-  
   #theorem(title: "Foo", label: <thm:foo>)[
     This is a theorem
   ]
   #proof(title: [@thm:foo[-]])[
     This is a proof.
-    - Ends with a list or enum?
-      No problem.#qed()
+    - Ends with a list or enum? No problem.
   ]
   ```)
 
@@ -164,14 +163,14 @@ Put the following at the top of your document:
 
 See #ref(label("theoretic-theorem()")) for a detailed description of customization options.
 
-Except for ```typ #show ref: theoretic.show-ref```, no "setup" is neccesary. All configuration is achieved via parameters on the #ref(label("theoretic-theorem()")) function, use ```typc theorem.with(..)``` for your preset needs.
+Except for ```typ #show ref: theoretic.show-ref```, no "setup" is necessary. All configuration is achieved via parameters on the #ref(label("theoretic-theorem()")) function, use ```typc theorem.with(..)``` for your preset needs.
 
 The numbering of theorems is not configurable, but can be disabled (`number: none`) or temporarily overridden (`number: "X"` or `number: 2`).
 If your headings are numbered, it will use top-level heading numbers as the first component, otherwise it will simply number your theorems starting with Theorem 1.
 
-Use #link(label("theoretic-toc()"))[```typ #theoretic.toc()```] to get a list of theorems, list of definitions, a table of contents containg theorems, etc.
+Use #link(label("theoretic-toc()"))[```typ #theoretic.toc()```] to get a list of theorems, list of definitions, a table of contents containing theorems, etc.
 
-Put ```typ #theoretic.solutions()``` at the end of your document to get the solutions (every theorem environent accepts a second positional arguments, which gets used as the solution).
+Put ```typ #theoretic.solutions()``` at the end of your document to get the solutions (every theorem environment accepts a second positional arguments, which gets used as the solution).
 (Nothing will appear unless there are solutions to show.)
 #theoretic.theorem(kind: "exercise", supplement: "Exercise")[
   Go look for the solution of this exercise at the end of this document.
@@ -180,141 +179,43 @@ Put ```typ #theoretic.solutions()``` at the end of your document to get the solu
 ]
 
 = Proofs / QED
-If a proof ends with text, nothing needs to be done.
+In most cases, it should place the QED symbol appropriately automatically:
 #example(```typ
-  #proof[#lorem(5)]
-  ```)
-If a proof ends with a list or some other full-width block, simply put a ```typc qed()``` at the end of it.
-#example(```typ
-  // Bad
-  #proof[- #lorem(5)]
+#proof[This is a proof. $x=y$]
+#proof[
+  This is a proof.
+  $ x = y $
+]
+#proof[
+  #set math.equation(numbering: "(1)")
+  This is a proof.
+  $ x = y $
+]
+#proof[
+  This is a proof.
+  - #lorem(3) $ x = y $
+]
+#proof[
+  This is a proof.
+  - #lorem(3)
+]
+#proof[
+  This is a proof.
+  + #lorem(3)
+    + #lorem(3)
+      + #lorem(3)
+        + #lorem(3)
+]
+```)
 
-  // Good
-  #proof[- #lorem(5)#qed()]
-  ```)
+Specifically, it works for lists, enums, and unnumbered block equations, which may be nested.
+If your proof ends wit some other block, you should might want to place a ```typ #qed()``` manually.
+For proper alignment with a block equation, use
+```typ
+#set math.equation(numbering: (..) => {qed()}, number-align: bottom)
+```
+placed directly in front of the equation.
 
-However, if it ends with a displayed (block) equation, things get tricky.
-
-It does not seem possible to place the qed from within the equation directly. However, we can use it as the "number" of the equation instead. (This breaks, of course, if you want the equation itself numbered also -- but in that case the wed has to go someplace else anyway)
-// I have not yet been able to figure out a way to elegantly place a QED in this situation from within the equation. Here are a couple of possible workarounds:
-#[#set par(justify: false)
-#example(```typ
-  #proof[
-    #lorem(5)
-    #set math.equation(numbering: (..) => {qed()}, number-align: bottom)
-    $ x &= y \ &= sqrt(sum_(4/a_k)^oo a_n). $
-  ]
-  ```)]
-
-// (Using a grid or stack des not allow proper alignment)
-
-(Note: use ```typc qed()``` instead of ```typc $square$``` so the proof environment knows that _it_ doesn't need to place one.)
-
-  // Bad
-  // #proof[
-  //   #lorem(5)
-  //   $ x = y . $
-  // ]
-
-  // // Using inline math
-  // #proof[
-  //   #lorem(5)
-  //   #v(0.5em)#hide(qed())$display( x = sqrt( sum^(oo) a_n ) . )$#qed()
-  // ]
-  // // But this doesn't work for multiline equations
-  // #proof[
-  //   #lorem(5)
-  //   #v(0.5em)#hide(qed())$display( x &= y \ &= sqrt( sum^(oo) a_n ) . )$#qed()
-  // ]
-  // // But this doesn't work for multiline equations
-  // #proof[
-  //   #lorem(5)
-  //   #v(0.5em)#box(width: 1fr, $display( #hide(qed()) x &= y \ &= sqrt( sum^(oo) a_n ) .#h(1fr)#qed() )$)
-  // ]
-  // // ?
-
-//   // For perfect alignment, repeat the last line of the equation invisibly.
-//   #proof[
-//     #lorem(5)
-//     #v(0.5em)#hide(qed())$ x &= y \ &= sqrt( sum^(oo) a_n ) .$..$display( sqrt( sum^(oo) a_n ) . )$#qed()
-//   ]
-
-//   // Using grid
-//   #proof[
-//     #lorem(5)
-//     #grid(
-//       align: horizon,
-//       columns: (1fr, auto, 1fr),
-//       [], $ x = sqrt( sum^(oo) a_n ) . $, qed()
-//     )
-//   ]
-//   // But this doesn't work for multiline equations
-//   #proof[
-//     #lorem(5)
-//     #grid(
-//       align: horizon,
-//       columns: (1fr, auto, 1fr),
-//       [], $ x &= y \ &= sqrt( sum^(oo) a_n ) . $, qed()
-//     )
-//   ]
-//   ```)
-
-// Broken: I consider it a typs bug that the text edges do affetc the visual sizes of the box, but not the measure ones.
-// #context {
-//   let eq = $display( x = sqrt( sum_(n_(n_(n_(n_k))))^(oo) a_n )^7 . ) $
-//   let eq-h = measure(eq).height
-//   eq
-//   box(fill: yellow, eq)
-//   box(width: 4pt, height: eq-h, fill: red)
-//   [#eq-h \ ]
-
-//   // let eq3a = rect(box(fill: green, clip: true, eq), fill: blue, inset: 10pt)
-//   // let eq3a-h = measure(eq3a).height
-//   // box(eq3a)
-//   // box(width: 4pt, height: eq3a-h, fill: red)
-
-//   // set text(bottom-edge: "bounds", top-edge: "bounds")
-//   let eq3 = text(bottom-edge: "bounds", top-edge: "bounds", eq) // pad(stack(dir: ttb, box(fill: green, clip: true, eq)))
-//   let eq3-h = measure(eq3).height
-//   [.]
-//   box(eq3, fill: gray)
-//   [.]
-//   box(width: 4pt, height: eq3-h, fill: red)
-//   [ #eq3-h ]
-//   // set text(top-edge: "cap-height", bottom-edge: "baseline") // default
-
-//   // set text(bottom-edge: "bounds", top-edge: "bounds")
-//   let eq3c = text(top-edge: "bounds", eq) // pad(stack(dir: ttb, box(fill: green, clip: true, eq)))
-//   let eq3c-h = measure(eq3c).height
-//   [.]
-//   box(eq3c, fill: gray)
-//   [.]
-//   box(width: 4pt, height: eq3c-h, fill: red)
-//   [ #eq3c-h ]
-//   // set text(top-edge: "cap-height", bottom-edge: "baseline") // default
-  
-
-//   let eq2 = rect(stroke: none, inset: 0pt, fill: aqua, eq)
-//   let eq2-h = measure(eq2).height
-//   box(eq2)
-//   [.]
-//   box(width: 4pt, height: eq3-h - eq2-h, fill: red)
-//   [.]
-//   box(width: 4pt, height: eq2-h, fill: red)
-//   [.$x$]
-//   box(eq, baseline: eq3-h - eq2-h)
-//   [.]
-//   eq
-//   [. #eq2-h ]
-
-//   theoretic.proof[
-//     #grid(
-//       align: bottom,
-//       columns: (1fr, auto, 1fr),
-//       [], eq, {theoretic.qed(); v(eq3-h - eq2-h)}
-//     )
-//   ]
-// }
 
 // = Open TODOs
 // - Ability to reference enumerations within theorem ("See Proposition 2.25 (a)")
@@ -362,11 +263,11 @@ It does not seem possible to place the qed from within the equation directly. Ho
       fmt-body: (b, _) => { emph(b) },
     )
     #let qed = qed.with(suffix: smallcaps[#h(1fr)_qed._])
-    #let proof = proof.with(fmt-suffix: qed)
+    #let proof = proof.with(fmt-suffix: qed.with(force: false))
 
     #lorem(20)
     #theorem(label: <e.g>)[#lorem(9)]
-    #proof(title: [@e.g])[#lorem(18)]
+    #proof(title: [@e.g])[+ #lorem(18)]
     #theorem(title: "Name")[#lorem(6)]
     #ex[#lorem(10)]
     #ex(title: "Named Example")[

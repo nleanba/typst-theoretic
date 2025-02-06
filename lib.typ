@@ -78,6 +78,61 @@
   }
 }
 
+/// Appends the suffix to the body, putting it inside any lists/enums and special casing block equations.
+/// -> content
+#let _append-qed(
+  /// -> content
+  body,
+  /// -> function | none
+  fmt-suffix,
+) = {
+  let _body = body
+  if fmt-suffix != none {
+    if body.has("children") {
+      if body.children.last() == [ ] {
+        _body = body.children.slice(0, -1).join()
+      }
+      let candidate = _body.children.last()
+      if candidate.func() == math.equation and candidate.block and math.equation.numbering == none {
+        _body = {
+          _body.children.slice(0, -1).join()
+          set math.equation(numbering: (..) => {fmt-suffix()}, number-align: bottom)
+          candidate
+          counter(math.equation).update((i) => {i - 1})
+        }
+      } else if candidate.func() == enum.item or candidate.func() == list.item {
+        _body = {
+          _body.children.slice(0, -1).join()
+          candidate.func()(_append-qed(candidate.body,  fmt-suffix))
+        }
+      } else {
+        _body = {
+          _body
+          fmt-suffix()
+        }
+      }
+    } else {
+      if _body.func() == math.equation and _body.block and math.equation.numbering == none {
+        _body = {
+          set math.equation(numbering: (..) => {fmt-suffix()}, number-align: bottom)
+          _body
+          counter(math.equation).update((i) => {i - 1})
+        }
+      } else if _body.func() == enum.item or _body.func() == list.item {
+        _body = {
+          _body.func()(_append-qed(_body.body,  fmt-suffix))
+        }
+      } else {
+        _body = {
+          _body
+          fmt-suffix()
+        }
+      }
+    }
+  }
+  return _body
+}
+
 /// Counts theorems.
 ///
 /// In most cases, it is not neccesary to reset this manually, it will get updated accordingly if you pass an integer to @theorem.number.
@@ -143,7 +198,7 @@
   fmt-body: fmt-body,
 
   /// Will be called at the end of the theorem if `_thm_needs_qed` hasn't been cleared. (E.g. by @qed)
-  /// -> none | content
+  /// -> function | none
   fmt-suffix: none,
 
   /// Arguments to pass to the ```typ #block[]``` containing the theorem.
@@ -260,10 +315,13 @@
       fmt-prefix(supplement, number, title)
       h(0pt, weak: true)
       _needs_qed.update(true)
-      fmt-body(body, sol)
-      if fmt-suffix != none {
-        fmt-suffix()
-      }
+
+      let _body = _append-qed(body, fmt-suffix)
+      
+      fmt-body(_body, sol)
+      // if fmt-suffix != none {
+      //   fmt-suffix()
+      // }
     }
   })
 }
