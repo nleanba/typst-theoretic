@@ -131,7 +131,7 @@ References can be controlled by passing some specific supplements, see #ref(labe
 = Setup
 Put the following at the top of your document:
 ```typ
-  #import "@preview/theoretic:0.1.0" as theoretic: theorem, proof, qed
+  #import "@preview/theoretic:0.1.1" as theoretic: theorem, proof, qed
 
   // Otherwise, references won't work.
   #show ref: theoretic.show-ref

@@ -4,7 +4,7 @@
 
 Example Usage:
 ```typ
-  #import "@preview/theoretic:0.1.0" as theoretic: theorem, proof, qed
+  #import "@preview/theoretic:0.1.1" as theoretic: theorem, proof, qed
 
   // Otherwise, references won't work.
   #show ref: theoretic.show-ref
@@ -23,4 +23,4 @@ Example Usage:
 
 [Full manual: ![first page of the documentation](https://github.com/nleanba/typst-theoretic/raw/refs/heads/main/preview.svg)](https://github.com/nleanba/typst-theoretic/blob/main/main.pdf)
 
-<!-- [Full manual: ![first page of the documentation](https://github.com/nleanba/typst-theoretic/raw/refs/tags/v0.1.1/preview.svg)](https://github.com/nleanba/typst-theoretic/blob/v0.1.0/main.pdf) ->
+<!-- [Full manual: ![first page of the documentation](https://github.com/nleanba/typst-theoretic/raw/refs/tags/v0.1.1/preview.svg)](https://github.com/nleanba/typst-theoretic/blob/v0.1.1/main.pdf) ->
