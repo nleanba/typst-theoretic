@@ -115,14 +115,16 @@ This package provides opinionated functions to create theorems and similar envir
 
 Default theorem environment and provided presets:
 #example(```typ
-  #theorem[This is a theorem]
-  #proof[This is a proof.]
+  #theorem[This is a theorem.]
+  #proof[
+    Ends with Equation? No Problem:
+    $ norm(x) = sqrt( sum_(k = 1)^d x_k ) . $
+  ]
   #theorem(title: "Foo", label: <thm:foo>)[
-    This is a theorem
+    This is a named theorem.
   ]
   #proof(title: [@thm:foo[-]])[
-    This is a proof.
-    - Ends with a list or enum? No problem.
+    - Ends with a list or enum? Easy.
   ]
   ```)
 
@@ -132,9 +134,7 @@ References can be controlled by passing some specific supplements, see #ref(labe
 Put the following at the top of your document:
 ```typ
   #import "@preview/theoretic:0.1.1" as theoretic: theorem, proof, qed
-
-  // Otherwise, references won't work.
-  #show ref: theoretic.show-ref
+  #show ref: theoretic.show-ref // Otherwise, references won't work.
 
   // set up your needed presets
   #let corollary = theorem.with(kind: "corollary", supplement: "Corollary")
