@@ -145,7 +145,7 @@
 /// >>> #thm-counter.update(0)
 /// #set heading(numbering: none)
 ///
-/// #theorem[If the headings are not numbered, theorem numbering starts at 1.][]
+/// #theorem[If the headings are not numbered, theorem numbering starts at 1.]
 ///
 /// = Heading
 /// #theorem(title: "Pythagoras")[
@@ -153,7 +153,7 @@
 ///   of the hypothenuse squared is equal to the
 ///   sum of the squares of the remainig sides'
 ///   lengths.
-/// ][]
+/// ]
 /// ```, scale-preview: 100%)
 ///
 /// /* #example(```typ
@@ -161,7 +161,7 @@
 /// >>> #counter(heading).update(0)
 /// #set heading(numbering: "1.1.")
 ///
-/// #theorem[Theorem before first numbered heading is "0.\_".][]
+/// #theorem[Theorem before first numbered heading is "0.\_".]
 ///
 /// = Heading
 /// #theorem(title: "Pythagoras")[
@@ -261,6 +261,10 @@
   body,
 
   /// Optional Solution. Pass zero or one positional arguments here.
+  ///
+  /// #example(```typ
+  /// #theorem[#lorem(5)][This will show up wherever `#theoretic.solutions()` is placed.]
+  /// ```, scale-preview: 100%)
   ///
   /// See @solutions.
   /// -> content

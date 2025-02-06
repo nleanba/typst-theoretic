@@ -15,6 +15,7 @@
   columns: 1,
   footer: align(center)[#context counter(page).display(page.numbering)], // why is this neccesary? idk???
 )
+#set text(fill: luma(20%))
 
 /// Balance columns
 #let balance(content) = layout(size => {
@@ -34,7 +35,7 @@
   set par(justify: false)
   show outline.entry.where(level: 1): it => {
     // if it.body.has("children") and it.body.children.first() == [A] { colbreak() }
-    v(4pt)
+    v(0pt)
     set text(weight: 700)
     link(it.element.location(), {
       let name = if it.body.has("children") { it.body.children.slice(2).join() } else { it }
@@ -63,32 +64,13 @@
         } else { none })
         h(-25pt)
         name
-        box(width: 1fr, align(right, repeat(gap: 8pt, justify: false, text(size: 10pt, [.]))))
+        box(width: 1fr, align(right, repeat(gap: 8pt, justify: false, text(size: 9pt, [.]))))
       })
       box(width: 20pt, align(right, it.page))
     })
   }
   show outline.entry.where(level: 4): it => {
-    set text(fill: luma(40%))
-    h(15pt)
-    link(it.element.location(), {
-      let name = if it.body.has("children") { it.body.children.slice(2).join() } else { it }
-      h(25pt)
-      box(width: 1fr, {
-        // box(width: 25pt, if it.body.has("children") {
-        //   h(-25pt)
-        //   it.body.children.first()
-        // } else { none })
-        // h(-25pt)
-        // name
-        it.body
-        box(width: 1fr, align(right, repeat(gap: 8pt, justify: false, text(size: 10pt, [.]))))
-      })
-      box(width: 20pt, align(right, it.page))
-    })
-  }
-  show outline.entry.where(level: 4): it => {
-    set text(size: 8pt, fill: luma(20%))
+    set text(size: 8pt, fill: luma(40%))
     h(40pt)
     link(it.element.location(), context {
       if it.body.has("children") {
@@ -112,7 +94,6 @@
       box(width: 16pt, align(right, it.page))
     })
   }
-  
   balance(columns(2, theoretic.toc()))
 }
 
@@ -219,10 +200,7 @@ placed directly in front of the equation.
 
 // = Open TODOs
 // - Ability to reference enumerations within theorem ("See Proposition 2.25 (a)")
-// - Copy what #link("https://github.com/sahasatvik/typst-theorems/blob/ebaa938c8911cdd89bf9ba51eaf91b017302b010/theorems.typ#L254", "ctheorems") did for ```typ #qed-here```.
 // - Re-stated theorems should automatically use same `theorem()` function.
-// - Investigate why it takes more than 5 iterations for large documents, even tough there are no circular dependencies as far as I can tell?
-//   We store the number in a metadata, which is context dependent (includes counters), but we never use the stored value to update the counter...
 
 
 #pagebreak(weak: true)
