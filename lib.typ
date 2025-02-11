@@ -610,7 +610,7 @@
   else if content.has("text") { content.text }
   else if content.has("children") { content.children.map(_to-string).join("") }
   else if content.has("child") { _to-string(content.child) }
-  else if content.has("body") { _to-string(content.body) }
+  else if content.has("body") { _to-string(_to-string(content.body)) }
   else if content == [] { "" }
   else if content == [ ] { " " }
   else if content.func() == ref { "_ref_" }
