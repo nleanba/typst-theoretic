@@ -153,7 +153,7 @@ Use #link(label("theoretic-toc()"))[```typ #theoretic.toc()```] to get a list of
 
 Put ```typ #theoretic.solutions()``` at the end of your document to get the solutions (every theorem environment accepts a second positional arguments, which gets used as the solution).
 (Nothing will appear unless there are solutions to show.)
-#theoretic.theorem(kind: "exercise", supplement: "Exercise")[
+#theoretic.theorem(kind: "exercise", supplement: "Exercise", label: <exercise_example>)[
   Go look for the solution of this exercise at the end of this document.
 ][
   Yay! you found it!
@@ -272,8 +272,7 @@ placed directly in front of the equation.
 
 #tidy.show-module(
   docs,
-  // style: tidy.styles.help,
-  // enable-cross-references: auto,
+  // style: tidy.styles.help, enable-cross-references: false,
   first-heading-level: 1,
   show-outline: false,
   omit-private-definitions: true,

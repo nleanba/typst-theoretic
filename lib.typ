@@ -422,6 +422,70 @@
   ..args,
 ) = {theorem(kind: kind, supplement: supplement, number: number, fmt-prefix: fmt-prefix, fmt-suffix: fmt-suffix, ..args)}
 
+/// This is just @theorem with different defaults.
+/// #example(```typ
+/// #solution(title: [@exercise_example])[#lorem(6)]
+/// ```, scale-preview: 100%)
+/// -> content
+#let solution(
+  /// #[]
+  /// -> content
+  kind: "solution",
+  /// #[]
+  /// -> content
+  supplement: "Solution",
+  /// #[]
+  /// -> string
+  number: none,
+  /// #[]
+  /// -> function
+  fmt-prefix: proof-fmt-prefix,
+  /// Same as for @theorem.
+  /// -> arguments
+  ..args,
+) = {theorem(kind: kind, supplement: supplement, number: number, fmt-prefix: fmt-prefix, ..args)}
+
+/// List all solutions, if any.
+///
+/// See @_thm_solutions for how it looks.
+/// 
+/// If there are solutions, the generated heading is labelled with `<_thm_solutions>`.
+/// -> content
+#let solutions(
+  /// Title/heading to use.
+  /// -> content
+  title: "Solutions",
+  /// Function to use to typeset the solution.
+  ///
+  /// Expects the same interface as @theorem, I reccommend using @solution or some `theorem.with(..)`.
+  /// -> function
+  fmt: solution,
+) = context {
+  let sols = query(<_thm>).filter(m => m.value.solution != none and m.value.solution != [])
+  if sols.len() > 0 {
+    [#heading(level: 1, title)<_thm_solutions>]
+    for sol in sols {
+      let val = query(selector(metadata).after(sol.location(), inclusive: false)).first().value
+      let target = if val.number != none {
+        if val.title != none {
+          [#val.supplement #val.number (#val.title)]
+        } else {
+          [#val.supplement #val.number]
+        }
+      } else {
+        if val.title != none {
+          [#val.supplement (#val.title)]
+        } else {
+          [#val.supplement]
+        }
+      }
+      solution(title: link(sol.location(), target), sol.value.solution)
+    }
+  } else {
+    [#metadata("No solutions. Should not link here.")<_thm_solutions>]
+  }
+}
+
 /// Show-rule-function to be able to ```typ @``` labelled theorems.
 ///
 /// Use via \````typ #show ref: show-ref```\` at the beginning of your document.
@@ -564,41 +628,6 @@
   }
 }
 
-/// List all solutions, if any.
-///
-/// See @_thm_solutions for how it looks.
-/// Currently not customizable, working on it.
-/// -> content
-#let solutions(
-  /// Title/heading to use.
-  /// -> content
-  title: "Solutions"
-) = context {
-  let sols = query(<_thm>).filter(m => m.value.solution != none and m.value.solution != [])
-  if sols.len() > 0 {
-    [#heading(level: 1, title)<_thm_solutions>]
-    for sol in sols {
-      let val = query(selector(metadata).after(sol.location(), inclusive: false)).first().value
-      let target = if val.number != none {
-        if val.title != none {
-          [#val.supplement #val.number (#val.title)]
-        } else {
-          [#val.supplement #val.number]
-        }
-      } else {
-        if val.title != none {
-          [#val.supplement (#val.title)]
-        } else {
-          [#val.supplement]
-        }
-      }
-      theorem(kind: "solution", supplement: "Solution", title: link(sol.location(), target), number: none, fmt-prefix: proof-fmt-prefix, sol.value.solution)
-    }
-  } else {
-    [#metadata("No solutions. Should not link here.")<_thm_solutions>]
-  }
-}
-
 /// internal helper
 /// -> string
 #let _to-string(
@@ -656,7 +685,7 @@
   /// -> content
   fill: repeat[.],
   /// Whether to sort the entries alphabetically.
-  /// Only resepcted if `depth` is 0.
+  /// Only respected if `depth` is 0.
   /// #example(```typ
   ///  #theorem(title: "Z")[Blah blah.]
   ///  #theorem(title: "A")[Blah blah.]
