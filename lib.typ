@@ -246,8 +246,21 @@
   title: none,
 
   /// Title of the Theorem to be used in outlines.
+  ///
   /// ```typc auto``` to use the `title`.
-  /// -> auto | content
+  ///
+  /// If you pass an array, in sorted outlines it will be split into multiple entries.
+  /// All but the first one are marked as secondary.
+  /// 
+  /// #example(scale-preview: 100%, ```typ
+  /// #theorem(
+  ///   title: [A to Z],
+  ///   toctitle: ([AAAAA], [ZZZZZZ])
+  /// )[
+  ///   Compare how this appears in different outlines!
+  /// ]
+  /// ```)
+  /// -> auto | content | array
   toctitle: auto,
 
   /// Label (for references)
@@ -607,6 +620,7 @@
 ) = {
   if content == none { "" }
   else if type(content) == str { content}
+  else if type(content) == array { content.map(_to-string).join(", ") }
   else if content.has("text") { content.text }
   else if content.has("children") { content.children.map(_to-string).join("") }
   else if content.has("child") { _to-string(content.child) }
@@ -618,7 +632,127 @@
     let offending = content
     ""
   }
-} 
+}
+
+/// Create a toc entry.
+///
+/// Pass this to @toc using `.with(..)` to customize the `fmt-` parameters used.
+///
+/// This is used because since Typst 0.13, it is no longer possible to call outline.entry outside of an actual ourline element, and one "cannot outline metadata".
+/// 
+/// This manual uses
+/// //#example(scale-preview: 100%,
+/// #block(radius: 3pt, stroke: .5pt + luma(200), inset: 5pt, width: 100%, {
+/// set text(size: 0.9em)
+/// ```typc
+/// set par(justify: false)
+/// let indents = (0pt, 15pt, 37pt)
+/// let hang-indents = (15pt, 22pt, 54pt)
+/// let text-styles = ((weight: 700), (size: 10pt), (size: 9pt, weight: 500), (size: 9pt, fill: luma(20%)), )
+/// theoretic.toc(toc-entry: theoretic.toc-entry.with(
+///   indent: (level) => { indents.at(level - 1) },
+///   hanging-indent: (level) => { hang-indents.at(level - 1) },
+///   fmt-prefix: (prefix, level, _s) => {
+///     set text(..text-styles.at(level - 1), number-width: "tabular")
+///     prefix
+///     h(4pt)
+///   },
+///   fmt-body: (body, level, _s) => {
+///     set text(..text-styles.at(level - 1))
+///     body
+///   },
+///   fmt-fill: (level, _s) => {
+///     if level == 2 {
+///       set text(..text-styles.at(2))
+///       box(width: 1fr, align(right, repeat(gap: 9pt, justify: false, [.])))
+///     }
+///   },
+///   fmt-page: (page, level, _s) => {
+///     set text(..text-styles.at(level - 1), number-width: "tabular")
+///     box(width: 18pt, align(right, [#page]))
+///   },
+///   above: (level) => {
+///     if level == 1 {
+///       auto // paragraph spacing
+///     } else {
+///       7pt
+///     }
+///   },
+///   below: auto,
+/// ))
+/// ```})
+#let toc-entry(
+  /// -> int
+  level,
+  /// -> location
+  target,
+  /// -> content
+  prefix,
+  /// -> content
+  body,
+  /// -> content
+  page,
+  /// This is `true` for entries where the toc-title is an array, the entry was split and this is _not_ the first one (in order specified).
+  /// -> boolean
+  secondary: false,
+  /// - If function, will be called with the level as argument.
+  /// -> relative length | function
+  indent: 1em,
+  /// How much more to indent subsequent lines.
+  ///
+  /// - If function, will be called with the level as argument.
+  /// - If `auto`, will use the width of the prefix
+  /// -> relative length | function | auto
+  hanging-indent: auto,
+  /// - If function, will be called with the level as argument.
+  /// -> relative length | function
+  above: 0.7em,
+  /// - If function, will be called with the level as argument.
+  /// -> relative length | function
+  below: 0.7em,
+  /// #[]
+  /// -> function
+  fmt-prefix: (prefix, level, secondary) => { prefix; h(0.5em, weak: false) },
+  /// #[]
+  /// -> function
+  fmt-body: (body, level, secondary) => { if secondary [(#body) ] else [#body ] },
+  /// #[]
+  /// -> function
+  fmt-fill: (level, secondary) => { box(width: 1fr, repeat[.~]) },
+  /// #[]
+  /// -> function
+  fmt-page: (page, level, secondary) => { page },
+) = {
+  let indent = if type(indent) == function { indent(level) } else { indent * (level - 1) }
+  let prefix = fmt-prefix(prefix, level, secondary)
+  let width = measure(prefix).width
+
+  let hanging-indent = if hanging-indent == auto {
+    width
+  } else if type(hanging-indent) == function {
+    measure(h(hanging-indent(level))).width
+  } else {
+    measure(h(hanging-indent)).width
+  }
+  if width <= hanging-indent { width = hanging-indent }
+  let above = if type(above) == function { above(level) } else { above }
+  let below = if type(below) == function { below(level) } else { below }
+  block(width: 100%, above: above, below: below, inset: (left: indent), {
+    link(target, {
+      h(hanging-indent)
+      box(width: 1fr, {
+        box(width: width, {
+          h(-hanging-indent)
+          prefix
+        })
+        h(-hanging-indent)
+        fmt-body(body, level, secondary)
+        fmt-fill(level, secondary)
+      })
+      fmt-page(page, level, secondary)
+    })
+  })
+}
 
 /// Create an outline that includes named theorems.
 ///
@@ -649,55 +783,82 @@
   /// -> list (string)
   exclude: ("proof", "solution"),
   /// Fake level to use for theorems.
+  ///
   /// Set this to some level greater than the depth if to avoid conflict in your show rules for `outline.entry`. 
-  /// -> integer
-  level: 4,
-  /// Fill for outline entries
-  /// -> content
-  fill: repeat[.],
+  /// 
+  /// If `auto`, it will use `depth + 1`.
+  /// -> integer | auto
+  level: auto,
+  /// Customize @toc-entry used.
+  ///
+  /// Expects a function taking five positional arguments (level, target, prefix, body, page).
+  toc-entry: toc-entry,
   /// Whether to sort the entries alphabetically.
-  /// Only resepcted if `depth` is 0.
+  ///
+  /// Only respected if `depth` is 0.
+  ///
+  /// If true, this will also split entries where `toctitle` is an array into separate entries.
+  ///
   /// #example(```typ
   ///  #theorem(title: "Z")[Blah blah.]
   ///  #theorem(title: "A")[Blah blah.]
   ///  #heading(outlined: false, level: 3)[
   ///    Sorted Table of Theorems
   ///  ]
+  ///  #set text(size: 9pt)
   ///  #toc(
   ///    depth: 0,
   ///    sort: true,
+  ///    toc-entry: toc-entry.with(hanging-indent: 60pt),
   ///  )
   ///  ```, scale-preview: 100%)
   /// -> bool
   sort: false
 ) = context {
+  let level = if level == auto { depth + 1 } else { level }
   let thms = query(selector(<_thm>).or(heading))
   if depth == 0 and sort {
-    thms = array(thms).filter(thm => { thm.func() != heading and thm.value.toctitle != none }).sorted(key: (thm) => { _to-string(thm.value.toctitle) })
+    thms = array(thms).filter(thm => {
+      thm.func() != heading and thm.value.toctitle != none
+    }).map((thm) => {
+      if type(thm.value.toctitle) == array {
+        let x = thm.value.toctitle.map((title) => {
+          (loc: thm.location(), value: (toctitle: title, secondary: true))
+        })
+        x.at(0).value.secondary = false
+        x
+      } else { (loc: thm.location(), value: (toctitle: thm.value.toctitle)) }
+    }).flatten().sorted(key: (thm) => {
+      _to-string(thm.value.toctitle)
+    })
     let len = thms.len()
   }
   for thm in thms {
-    let pn = thm.location().page-numbering()
+    let loc = if type(thm) == dictionary { thm.loc } else { thm.location() }
+    let pn = loc.page-numbering()
     let p = if pn != none {
-      numbering(pn, ..counter(page).at(thm.location()))
+      numbering(pn, ..counter(page).at(loc))
     } else {
-      numbering("1", ..counter(page).at(thm.location()))
+      numbering("1", ..counter(page).at(loc))
     }
-    if thm.func() == heading {
+    if type(thm) != dictionary and thm.func() == heading {
       let level = thm.level
       if level > depth or thm.outlined == false { continue }
       let number = none
       if thm.numbering != none {
-        number = numbering(thm.numbering, ..counter(heading).at(thm.location()))
+        number = numbering(thm.numbering, ..counter(heading).at(loc))
       }
-      outline.entry(level, thm, [#number #thm.body], fill, p)
-      linebreak()
+      // outline.entry(level, thm, [#number #thm.body], fill, p)
+      // linebreak()
+      toc-entry(level, loc, number, thm.body, p)
+      // outline.entry(level, thm)
     } else {
-      let base = query(selector(metadata).after(thm.location(), inclusive: false)).first().value
+      let base = query(selector(metadata).after(loc, inclusive: false)).first().value
       if base == () or base.theorem-kind in exclude { continue }
-      if thm.value.toctitle != none {
-        outline.entry(level, thm, [#base.supplement #base.number (#thm.value.toctitle)], fill, p)
-        linebreak()
+      if type(thm.value.toctitle) == array {
+        toc-entry(level, loc, [#base.supplement #base.number], thm.value.toctitle.join(" / "), p)
+      } else if thm.value.toctitle != none {
+        toc-entry(level, loc, [#base.supplement #base.number], thm.value.toctitle, p, secondary: thm.value.at("secondary", default: false))
       }
     }
   }

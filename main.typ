@@ -33,68 +33,42 @@
 #heading(outlined: false, numbering: none)[Contents]
 #{
   set par(justify: false)
-  show outline.entry.where(level: 1): it => {
-    // if it.body.has("children") and it.body.children.first() == [A] { colbreak() }
-    v(0pt)
-    set text(weight: 700)
-    link(it.element.location(), {
-      let name = if it.body.has("children") { it.body.children.slice(2).join() } else { it }
-      h(15pt)
-      box(width: 1fr, {
-        box(width: 15pt, if it.body.has("children") {
-          h(-15pt)
-          it.body.children.first()
-        } else { none })
-        h(-15pt)
-        name
-      })
-      // h(1fr)
-      box(width: 20pt, align(right, it.page))
-    })
-  }
-  show outline.entry.where(level: 2): it => {
-    h(15pt)
-    link(it.element.location(), {
-      let name = if it.body.has("children") { it.body.children.slice(2).join() } else { it }
-      h(25pt)
-      box(width: 1fr, {
-        box(width: 25pt, if it.body.has("children") {
-          h(-25pt)
-          it.body.children.first()
-        } else { none })
-        h(-25pt)
-        name
-        box(width: 1fr, align(right, repeat(gap: 8pt, justify: false, text(size: 9pt, [.]))))
-      })
-      box(width: 20pt, align(right, it.page))
-    })
-  }
-  show outline.entry.where(level: 4): it => {
-    set text(size: 8pt, fill: luma(40%))
-    h(40pt)
-    link(it.element.location(), context {
-      if it.body.has("children") {
-        let supp = text(font: "Besley*", stretch: 85%, array(it.body.children).slice(0, 3).join())
-        let width = measure(supp).width + 2.5pt
-        if width <= 48pt { width = 48pt}
-        h(48pt)
-        box(width: 1fr, {
-          box(width: width, {
-            h(-48pt)
-            supp
-          })
-          h(-48pt)
-          text(font: "Besley*", array(it.body.children).slice(5, -1).join())
-          // h(2pt)
-          h(1fr)
-        })
-      } else {
-        text(font: "Besley*", it.body)
+  let indents = (0pt, 15pt, 37pt)
+  let hang-indents = (15pt, 22pt, 54pt)
+  let text-styles = ((weight: 700), (size: 10pt), (size: 9pt, weight: 500), (size: 9pt, fill: luma(20%)), )
+  
+  let outline-entry = theoretic.toc-entry.with(
+    indent: (level) => { indents.at(level - 1) },
+    hanging-indent: (level) => { hang-indents.at(level - 1) },
+    fmt-prefix: (prefix, level, _s) => {
+      set text(..text-styles.at(level - 1), number-width: "tabular")
+      prefix
+      h(4pt)
+    },
+    fmt-body: (body, level, _s) => {
+      set text(..text-styles.at(level - 1))
+      body
+    },
+    fmt-fill: (level, _s) => {
+      if level == 2 {
+        set text(..text-styles.at(2))
+        box(width: 1fr, align(right, repeat(gap: 9pt, justify: false, [.])))
       }
-      box(width: 16pt, align(right, it.page))
-    })
-  }
-  balance(columns(2, theoretic.toc()))
+    },
+    fmt-page: (page, level, _s) => {
+      set text(..text-styles.at(level - 1), number-width: "tabular")
+      box(width: 18pt, align(right, [#page]))
+    },
+    above: (level) => {
+      if level == 1 {
+        auto // 12pt
+      } else {
+        7pt
+      }
+    },
+    below: auto,
+  )
+  balance(columns(2, theoretic.toc(toc-entry: outline-entry)))
 }
 
 #show link: it => {
