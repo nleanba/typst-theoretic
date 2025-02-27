@@ -1,7 +1,14 @@
 #import "@preview/tidy:0.4.1"
 #import "lib.typ" as theoretic
+#import "styles.typ" as theoretic-styles
 
-#let example = tidy.styles.default.show-example.with(scope: (theoretic: theoretic,), preamble: "#import theoretic: *\n", scale-preview: 100%)//, dir: ttb)
+#let example = tidy.styles.default.show-example.with(
+  scope: (
+    theoretic: theoretic,
+    theoretic-styles: theoretic-styles,
+  ),
+  preamble: "#import theoretic: *\n",
+  scale-preview: 100%)//, dir: ttb)
 
 #set par(justify: true)
 #set heading(numbering: "1.1")
@@ -196,12 +203,12 @@ For proper alignment with a block equation, use
 #set math.equation(numbering: (..) => {qed()}, number-align: bottom)
 ```
 placed directly in front of the equation.
+#theoretic-styles.badge[Huh]
 
 
 // = Open TODOs
 // - Ability to reference enumerations within theorem ("See Proposition 2.25 (a)")
 // - Re-stated theorems should automatically use same `theorem()` function.
-
 
 #pagebreak(weak: true)
 = Examples
@@ -255,6 +262,42 @@ placed directly in front of the equation.
     >>> ]
     ```
   )
+]
+
+#theoretic.theorem(
+  kind: "example", supplement: "Example",
+  title: [Using preset "badged" style]
+)[
+  #example(
+    // dir: btt,
+    // TODO import
+    ```typ
+    // import "styles.typ" as theoretic-styles
+    >>> #pad(left: 4pt)[
+    #set text(font: "Besley*", size: 9pt)
+    #let theorem = theoretic-styles.badged()
+    #let example = theoretic-styles.badged(
+      hue: none,
+      bold: false,
+      kind: "example",
+      supplement: "Example",
+    )
+    #let definition = theoretic-styles.badged(
+      hue: 140deg,
+      kind: "definition",
+      supplement: "Definition",
+    )
+
+    #lorem(5)
+
+    #theorem[#lorem(5)]
+    #theorem(title: [Named Theorem])[#lorem(5)]
+
+    #example[#lorem(5)]
+
+    #definition(title: [Thing])[#lorem(5)]
+    >>> ]
+    ```)
 ]
 
 #set page(numbering: (.., i) => { smallcaps("a"); str(i); }, columns: 1)
