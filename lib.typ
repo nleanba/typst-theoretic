@@ -247,9 +247,10 @@
 
   /// Title of the Theorem to be used in outlines.
   ///
-  /// ```typc auto``` to use the `title`.
+  /// - ```typc auto``` to use the `title`.
+  /// - ```typc none``` to hide it from the outlines.
   ///
-  /// If you pass an array, in sorted outlines it will be split into multiple entries.
+  /// If you pass an array, in _sorted_ outlines (@toc.sort) it will be split into multiple entries.
   /// All but the first one are marked as secondary.
   /// 
   /// #example(scale-preview: 100%, ```typ
@@ -686,7 +687,7 @@
   level,
   /// -> location
   target,
-  /// -> content
+  /// -> content | none
   prefix,
   /// -> content
   body,
@@ -695,13 +696,38 @@
   /// This is `true` for entries where the toc-title is an array, the entry was split and this is _not_ the first one (in order specified).
   /// -> boolean
   secondary: false,
+  /// How much to indent each entry.
+  /// 
+  /// - If length, it will be multiplied with level - 1.
   /// - If function, will be called with the level as argument.
   /// -> relative length | function
   indent: 1em,
-  /// How much more to indent subsequent lines.
+  /// How much more to indent subsequent lines (in addition th @toc-entry.indent).
+  /// 
+  /// If the prefix is shorter than this, this will lead to a gap between prefix and body;
+  /// If the prefix is longer, the body will start immediately after the prefix.
+  /// 
+  /// // In both cases subsequent lines of the body are indented by the given amount _plus_ the indent
   ///
   /// - If function, will be called with the level as argument.
   /// - If `auto`, will use the width of the prefix
+  /// 
+  /// #example(scale-preview: 100%, ```typ
+  /// >>> #show link: it => { show underline: ul => { ul.body }; it }
+  /// >>> #context[
+  /// #let example-entry = theoretic.toc-entry.with(1, here(), [Section 1.], lorem(6), [0])
+  /// #let example-entry-2 = theoretic.toc-entry.with(2, here(), [Section 1.1.], lorem(6), [0])
+  /// 
+  /// // aligned with end of prefix
+  /// #example-entry(hanging-indent: auto)
+  /// #example-entry-2(hanging-indent: auto)
+  /// 
+  /// #example-entry(hanging-indent: 1em)
+  /// #example-entry-2(hanging-indent: 1em)
+  /// #example-entry(hanging-indent: 80pt)
+  /// #example-entry-2(hanging-indent: 80pt)
+  /// >>> ]
+  /// ```)
   /// -> relative length | function | auto
   hanging-indent: auto,
   /// - If function, will be called with the level as argument.
@@ -712,7 +738,7 @@
   below: 0.7em,
   /// #[]
   /// -> function
-  fmt-prefix: (prefix, level, secondary) => { prefix; h(0.5em, weak: false) },
+  fmt-prefix: (prefix, level, secondary) => { if prefix != none { prefix; h(0.5em, weak: false) } },
   /// #[]
   /// -> function
   fmt-body: (body, level, secondary) => { if secondary [(#body) ] else [#body ] },
@@ -754,6 +780,67 @@
   })
 }
 
+/// Helper function to adapt actual outlines to look the same as those made with @toc.
+/// 
+/// Note: Fot typst versions <= 0.12, this function is a bit "hacky" and might not always work.
+/// (It deconstructs the `outline.entry` based on heuristics.)
+///
+/// #example(dir: ttb, scale-preview: 100%, ```typ
+/// #outline(target: figure)
+/// #show outline.entry: theoretic.show-entry.with(
+///   theoretic.toc-entry.with(hanging-indent: 60pt, /*...*/)
+/// )
+/// >>> #show link: it => { show underline: ul => { ul.body }; it }
+/// #outline(target: figure)
+/// #figure(
+///   caption: [Example Figure],
+///   block(height: 2em, width: 100%, fill: gradient.linear(..color.map.viridis))
+/// )
+/// ```)
+#let show-entry(
+  /// Customize @toc-entry used.
+  ///
+  /// Expects a function taking five positional arguments (level, target, prefix, body, page).
+  /// -> function
+  toc-entry,
+  /// You usually won't set this directly
+  /// -> outline.entry
+  entry
+) = context {
+  if sys.version >= version(0,13,0) {
+    toc-entry(
+      entry.level,
+      entry.element.location(),
+      entry.prefix(),
+      entry.body(),
+      entry.page()
+    )
+  } else {
+    if entry.body.has("children") {
+      let index = array(entry.body.children).position(s => regex("\d|^[A-z]$") in _to-string(s))
+      if entry.body.children.len() > index + 1 and regex("^:\s*$") in _to-string(entry.body.children.at(index + 1)) { index = index + 1 }
+      let prefix = if index != none { entry.body.children.slice(0,index + 1).join() } else { none }
+      let body = if index != none { entry.body.children.slice(index + 1).join() } else { entry.body }
+      toc-entry(
+        entry.level,
+        entry.element.location(),
+        prefix,
+        body,
+        entry.page
+      )
+    } else {
+      toc-entry(
+        entry.level,
+        entry.element.location(),
+        none,
+        entry.body,
+        entry.page
+      )
+    }
+    v(-1em)
+  }
+}
+
 /// Create an outline that includes named theorems.
 ///
 /// Can be styled with show rules for ```typc outline.entry()```.
@@ -792,6 +879,7 @@
   /// Customize @toc-entry used.
   ///
   /// Expects a function taking five positional arguments (level, target, prefix, body, page).
+  /// -> function
   toc-entry: toc-entry,
   /// Whether to sort the entries alphabetically.
   ///
