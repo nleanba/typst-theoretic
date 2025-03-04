@@ -770,7 +770,12 @@
   below: 0.7em,
   /// #[]
   /// -> function
-  fmt-prefix: (prefix, level, secondary) => { if prefix != none { prefix; h(0.5em, weak: false) } },
+  fmt-prefix: (prefix, level, secondary) => {
+    if prefix != none {
+      prefix
+      h(0.5em, weak: false)
+    }
+  },
   /// #[]
   /// -> function
   fmt-body: (body, level, secondary) => { if secondary [(#body) ] else [#body ] },
@@ -828,65 +833,67 @@
 }
 
 /// Helper function to adapt actual outlines to look the same as those made with @toc.
+/// This is useful if you want to have e.g. a list of figures and a list of definitons adn want them to share their style.
 ///
 /// Note: Fot typst versions <= 0.12, this function is a bit "hacky" and might not always work.
 /// (It deconstructs the `outline.entry` based on heuristics.)
 ///
 /// #example(dir: ttb, scale-preview: 100%, ```typ
-/// #outline(target: figure)
-/// #show outline.entry: theoretic.show-entry.with(
-///   theoretic.toc-entry.with(hanging-indent: 60pt, /*...*/)
-/// )
+/// #import theoretic: show-entry-as, toc-entry
+///
+/// #outline(target: figure, title: [Typst Default])
+///
+/// #show outline.entry: show-entry-as(toc-entry.with(hanging-indent: 60pt, /*...*/))
 /// >>> #show link: it => { show underline: ul => { ul.body }; it }
-/// #outline(target: figure)
+/// #outline(target: figure, title: [Using `theoretic.toc-entry`])
+///
 /// #figure(
 ///   caption: [Example Figure],
 ///   block(height: 2em, width: 100%, fill: gradient.linear(..color.map.viridis))
 /// )
 /// ```)
-#let show-entry(
+#let show-entry-as(
   /// Customize @toc-entry used.
   ///
   /// Expects a function taking five positional arguments (level, target, prefix, body, page).
   /// -> function
   toc-entry,
-  /// You usually won't set this directly
-  /// -> outline.entry
-  entry,
-) = context {
-  if sys.version >= version(0, 13, 0) {
-    toc-entry(
-      entry.level,
-      entry.element.location(),
-      entry.prefix(),
-      entry.body(),
-      entry.page(),
-    )
-  } else {
-    if entry.body.has("children") {
-      let index = array(entry.body.children).position(s => regex("\d|^[A-z]$") in _to-string(s))
-      if entry.body.children.len() > index + 1 and regex("^:\s*$") in _to-string(entry.body.children.at(index + 1)) {
-        index = index + 1
-      }
-      let prefix = if index != none { entry.body.children.slice(0, index + 1).join() } else { none }
-      let body = if index != none { entry.body.children.slice(index + 1).join() } else { entry.body }
+) = {
+  entry => context {
+    if sys.version >= version(0, 13, 0) {
       toc-entry(
         entry.level,
         entry.element.location(),
-        prefix,
-        body,
-        entry.page,
+        entry.prefix(),
+        entry.body(),
+        entry.page(),
       )
     } else {
-      toc-entry(
-        entry.level,
-        entry.element.location(),
-        none,
-        entry.body,
-        entry.page,
-      )
+      if entry.body.has("children") {
+        let index = array(entry.body.children).position(s => regex("\d|^[A-z]$") in _to-string(s))
+        if entry.body.children.len() > index + 1 and regex("^:\s*$") in _to-string(entry.body.children.at(index + 1)) {
+          index = index + 1
+        }
+        let prefix = if index != none { entry.body.children.slice(0, index + 1).join() } else { none }
+        let body = if index != none { entry.body.children.slice(index + 1).join() } else { entry.body }
+        toc-entry(
+          entry.level,
+          entry.element.location(),
+          prefix,
+          body,
+          entry.page,
+        )
+      } else {
+        toc-entry(
+          entry.level,
+          entry.element.location(),
+          none,
+          entry.body,
+          entry.page,
+        )
+      }
+      v(-1em)
     }
-    v(-1em)
   }
 }
 

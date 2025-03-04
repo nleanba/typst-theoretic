@@ -82,12 +82,13 @@
   )
 }
 
+#let fn-link(fn) = {
+  link(label("theoretic-" + fn +"()"), raw(lang: "typ", "#theoretic." + fn + "()"))
+}
 
 = Summary
 
 This package provides opinionated functions to create theorems and similar environments.
-
-Default theorem environment and provided presets:
 #example(```typ
   #theorem[This is a theorem.]
   #proof[
@@ -102,12 +103,10 @@ Default theorem environment and provided presets:
   ]
   ```)
 
-References can be controlled by passing some specific supplements, see #ref(label("theoretic-show-ref()")) for more details.
-
-= Setup
+== Setup
 Put the following at the top of your document:
 ```typ
-  #import "@preview/theoretic:0.1.1" as theoretic: theorem, proof, qed
+  #import "@preview/theoretic:0.2.0" as theoretic: theorem, proof, qed
   #show ref: theoretic.show-ref // Otherwise, references won't work.
 
   // set up your needed presets
@@ -116,60 +115,103 @@ Put the following at the top of your document:
   // ..etc
   ```
 
-See #ref(label("theoretic-theorem()")) for a detailed description of customization options.
+See #fn-link("theorem") (#ref(label("theoretic-theorem()"))) for a detailed description of customization options.
 
-Except for ```typ #show ref: theoretic.show-ref```, no "setup" is necessary. All configuration is achieved via parameters on the #ref(label("theoretic-theorem()")) function, use ```typc theorem.with(..)``` for your preset needs.
+= Features
 
-The numbering of theorems is not configurable, but can be disabled (`number: none`) or temporarily overridden (`number: "X"` or `number: 2`).
-If your headings are numbered, it will use top-level heading numbers as the first component, otherwise it will simply number your theorems starting with Theorem 1.
+- Except for ```typ #show ref: theoretic.show-ref```, no "setup" is necessary.
+  All configuration is achieved via parameters on the #fn-link("theorem") function.
+  Use ```typc theorem.with(..)``` for your preset needs.
+  #h(1fr)#box[→ #fn-link("theorem")]
 
-Use #link(label("theoretic-toc()"))[```typ #theoretic.toc()```] to get a list of theorems, list of definitions, a table of contents containing theorems, etc.
+- Automatic numbering.
+  If your headings are numbered, it will use top-level heading numbers as the first component, otherwise it will simply number your theorems starting with Theorem 1.
+  #example(```typ
+    #theorem(number: "!!")[
+      Number can be overridden per-theorem.
+    ]
+    #theorem(number: 400)[
+      If a `number` is passed (as opposed to a string or content),
+    ]
+    #theorem[
+      ...subsequent theorems will pick it up.
+    ]
+    ```)
 
-Put ```typ #theoretic.solutions()``` at the end of your document to get the solutions (every theorem environment accepts a second positional arguments, which gets used as the solution).
-(Nothing will appear unless there are solutions to show.)
-#theoretic.theorem(kind: "exercise", supplement: "Exercise")[
-  Go look for the solution of this exercise at the end of this document.
-][
-  Yay! you found it!
-]
+- Flexible References via specific supplements.
+  #h(1fr)#box[ → #fn-link("show-ref")]
+  #example(```typ
+    @thm:foo vs @thm:foo[-] vs @thm:foo[--] vs @thm:foo[!] vs @thm:foo[!!] vs @thm:foo[!!!] vs @thm:foo[?] vs @thm:foo[Statement]
+    ```)
 
-= Proofs / QED
-In most cases, it should place the QED symbol appropriately automatically:
-#example(```typ
-#proof[This is a proof. $x=y$]
-#proof[
-  This is a proof.
-  $ x = y $
-]
-#proof[
-  #set math.equation(numbering: "(1)")
-  This is a proof.
-  $ x = y $
-]
-#proof[
-  This is a proof.
-  - #lorem(3) $ x = y $
-]
-#proof[
-  This is a proof.
-  - #lorem(3)
-]
-#proof[
-  This is a proof.
-  + #lorem(3)
+- Custom outlines: Outline for headings _and/or_ theorems.
+  #h(1fr)#box[ → #fn-link("toc")]
+  - Filter for specific kinds of theorem to create e.g. a list of definitions.
+  - Optionally sorted alphabetically!
+  - Theorems can have a different title for outlines (#link(label("theoretic-theorem.toctitle"), raw(lang: "typ", "theorem(toctitle: ..)"))) and can even have multiple entries in a sorted outline.
+  - Highly customizable! #h(1fr)#box[ → #fn-link("toc-entry")]
+    - (And this customization can be reused for regular outlines)#h(1fr)#box[→ #fn-link("show-entry-as")]
+
+- Exercise solutions:
+  #h(1fr)#box[ → #fn-link("solutions")]
+  - Every theorem environment accepts a second positional argument, which gets used as the solution.
+  - Solutions section automatically hides itself if there are no solutions to show.
+  #example(```typ
+    #theorem(kind: "exercise", supplement: "Exercise")[
+      Go look for the solution of this exercise at the end of this document.
+    ][
+      // no cheating! //
+    >>>  Yay! you found it!
+    ]
+    ```)
+
+- Automatic QED placement!
+  #h(1fr)#box[ → #fn-link("proof") & #fn-link("qed")]
+
+  In most cases, it should place the QED symbol appropriately automatically:
+  #example(```typ
+  #proof[This is a proof. $x=y$]
+  #proof[
+    This is a proof.
+    $ x = y $
+  ]
+  #proof[
+    #set math.equation(numbering: "(1)")
+    This is a proof.
+    $ x = y $
+  ]
+  #proof[
+    This is a proof.
+    - #lorem(3) $ x = y $
+  ]
+  #proof[
+    This is a proof.
+    - #lorem(3)
+  ]
+  #proof[
+    This is a proof.
     + #lorem(3)
       + #lorem(3)
         + #lorem(3)
-]
-```)
+          + #lorem(3)
+  ]
+  ```)
 
-Specifically, it works for lists, enums, and unnumbered block equations, which may be nested.
-If your proof ends wit some other block, you should might want to place a ```typ #qed()``` manually.
-For proper alignment with a block equation, use
-```typ
-#set math.equation(numbering: (..) => {qed()}, number-align: bottom)
-```
-placed directly in front of the equation.
+  Specifically, it works for lists, enums, and unnumbered block equations, which may be nested.
+  If your proof ends wit some other block, you should might want to place a ```typ #qed()``` manually.
+  For proper alignment with a block equation, use
+  ```typ
+  #set math.equation(numbering: (..) => {qed()}, number-align: bottom)
+  ```
+  placed directly in front of the equation.
+
+- Restate any theorem.
+  #h(1fr)#box[ → #fn-link("restate")]
+  #example(```typc
+  theoretic.restate(<thm:foo>)
+  // the prefix links to the original
+  ```)
+
 
 
 // = Open TODOs
