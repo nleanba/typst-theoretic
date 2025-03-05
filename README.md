@@ -4,7 +4,7 @@
 
 Example Usage:
 ```typ
-  #import "@preview/theoretic:0.1.1" as theoretic: theorem, proof, qed
+  #import "@preview/theoretic:0.2.0" as theoretic: theorem, proof, qed
 
   // Otherwise, references won't work.
   #show ref: theoretic.show-ref
@@ -21,6 +21,29 @@ Example Usage:
   // ..etc
 ```
 
-[Full manual: ![first page of the documentation](https://github.com/nleanba/typst-theoretic/raw/refs/heads/main/preview.svg)](https://github.com/nleanba/typst-theoretic/blob/main/main.pdf)
+## Features: Overview
+- No "setup" is necessary.
+  All configuration is achieved via parameters on the `theorem` function.
+- Automatic numbering.
+- Flexible References via specific supplements.
+- Custom outlines: Outline for headings _and/or_ theorems.
+  - Filter for specific kinds of theorem to create e.g. a list of definitions.
+  - Optionally sorted alphabetically!
+  - Theorems can have a different title for outlines and can even have multiple entries in a sorted outline.
+- Exercise solutions
+- Automatic QED placement!
+- Any theorem can be restated.
 
-<!-- [Full manual: ![first page of the documentation](https://github.com/nleanba/typst-theoretic/raw/refs/tags/v0.1.1/preview.svg)](https://github.com/nleanba/typst-theoretic/blob/v0.1.1/main.pdf) ->
+Please see the PDF manual for more details.
+
+## Manual
+
+[![first page of the documentation](https://github.com/nleanba/typst-theoretic/raw/refs/heads/main/preview.svg)](https://github.com/nleanba/typst-theoretic/blob/main/main.pdf)
+[Full Manual →](https://github.com/nleanba/typst-theoretic/blob/main/main.pdf)
+
+<!-- [Full manual: ![first page of the documentation](https://github.com/nleanba/typst-theoretic/raw/refs/tags/v0.1.1/preview.svg)](https://github.com/nleanba/typst-theoretic/blob/v0.1.1/main.pdf) -->
+
+## Feedback
+Have you encountered a bug? [Please report it as an issue in my github repository.](https://github.com/nleanba/typst-theoretic/issues)
+
+Has this package been useful to you? [I am always happy when someone gives me a ~~sticker~~ star⭐](https://github.com/nleanba/typst-theoretic)

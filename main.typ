@@ -33,68 +33,42 @@
 #heading(outlined: false, numbering: none)[Contents]
 #{
   set par(justify: false)
-  show outline.entry.where(level: 1): it => {
-    // if it.body.has("children") and it.body.children.first() == [A] { colbreak() }
-    v(0pt)
-    set text(weight: 700)
-    link(it.element.location(), {
-      let name = if it.body.has("children") { it.body.children.slice(2).join() } else { it }
-      h(15pt)
-      box(width: 1fr, {
-        box(width: 15pt, if it.body.has("children") {
-          h(-15pt)
-          it.body.children.first()
-        } else { none })
-        h(-15pt)
-        name
-      })
-      // h(1fr)
-      box(width: 20pt, align(right, it.page))
-    })
-  }
-  show outline.entry.where(level: 2): it => {
-    h(15pt)
-    link(it.element.location(), {
-      let name = if it.body.has("children") { it.body.children.slice(2).join() } else { it }
-      h(25pt)
-      box(width: 1fr, {
-        box(width: 25pt, if it.body.has("children") {
-          h(-25pt)
-          it.body.children.first()
-        } else { none })
-        h(-25pt)
-        name
-        box(width: 1fr, align(right, repeat(gap: 8pt, justify: false, text(size: 9pt, [.]))))
-      })
-      box(width: 20pt, align(right, it.page))
-    })
-  }
-  show outline.entry.where(level: 4): it => {
-    set text(size: 8pt, fill: luma(40%))
-    h(40pt)
-    link(it.element.location(), context {
-      if it.body.has("children") {
-        let supp = text(font: "Besley*", stretch: 85%, array(it.body.children).slice(0, 3).join())
-        let width = measure(supp).width + 2.5pt
-        if width <= 48pt { width = 48pt}
-        h(48pt)
-        box(width: 1fr, {
-          box(width: width, {
-            h(-48pt)
-            supp
-          })
-          h(-48pt)
-          text(font: "Besley*", array(it.body.children).slice(5, -1).join())
-          // h(2pt)
-          h(1fr)
-        })
-      } else {
-        text(font: "Besley*", it.body)
+  let indents = (0pt, 15pt, 37pt)
+  let hang-indents = (15pt, 22pt, 54pt)
+  let text-styles = ((weight: 700), (size: 10pt), (size: 9pt, weight: 500), (size: 9pt, fill: luma(20%)), )
+  
+  let outline-entry = theoretic.toc-entry.with(
+    indent: (level) => { indents.at(level - 1) },
+    hanging-indent: (level) => { hang-indents.at(level - 1) },
+    fmt-prefix: (prefix, level, _s) => {
+      set text(..text-styles.at(level - 1), number-width: "tabular")
+      prefix
+      h(4pt)
+    },
+    fmt-body: (body, level, _s) => {
+      set text(..text-styles.at(level - 1))
+      body
+    },
+    fmt-fill: (level, _s) => {
+      if level == 2 {
+        set text(..text-styles.at(2))
+        box(width: 1fr, align(right, repeat(gap: 9pt, justify: false, [.])))
       }
-      box(width: 16pt, align(right, it.page))
-    })
-  }
-  balance(columns(2, theoretic.toc()))
+    },
+    fmt-page: (page, level, _s) => {
+      set text(..text-styles.at(level - 1), number-width: "tabular")
+      box(width: 18pt, align(right, [#page]))
+    },
+    above: (level) => {
+      if level == 1 {
+        auto // 12pt
+      } else {
+        7pt
+      }
+    },
+    below: auto,
+  )
+  balance(columns(2, theoretic.toc(toc-entry: outline-entry)))
 }
 
 #show link: it => {
@@ -108,12 +82,13 @@
   )
 }
 
+#let fn-link(fn) = {
+  link(label("theoretic-" + fn +"()"), raw(lang: "typ", "#theoretic." + fn + "()"))
+}
 
 = Summary
 
 This package provides opinionated functions to create theorems and similar environments.
-
-Default theorem environment and provided presets:
 #example(```typ
   #theorem[This is a theorem.]
   #proof[
@@ -128,12 +103,10 @@ Default theorem environment and provided presets:
   ]
   ```)
 
-References can be controlled by passing some specific supplements, see #ref(label("theoretic-show-ref()")) for more details.
-
-= Setup
+== Setup
 Put the following at the top of your document:
 ```typ
-  #import "@preview/theoretic:0.1.1" as theoretic: theorem, proof, qed
+  #import "@preview/theoretic:0.2.0" as theoretic: theorem, proof, qed
   #show ref: theoretic.show-ref // Otherwise, references won't work.
 
   // set up your needed presets
@@ -142,60 +115,103 @@ Put the following at the top of your document:
   // ..etc
   ```
 
-See #ref(label("theoretic-theorem()")) for a detailed description of customization options.
+See #fn-link("theorem") (#ref(label("theoretic-theorem()"))) for a detailed description of customization options.
 
-Except for ```typ #show ref: theoretic.show-ref```, no "setup" is necessary. All configuration is achieved via parameters on the #ref(label("theoretic-theorem()")) function, use ```typc theorem.with(..)``` for your preset needs.
+= Features
 
-The numbering of theorems is not configurable, but can be disabled (`number: none`) or temporarily overridden (`number: "X"` or `number: 2`).
-If your headings are numbered, it will use top-level heading numbers as the first component, otherwise it will simply number your theorems starting with Theorem 1.
+- Except for ```typ #show ref: theoretic.show-ref```, no "setup" is necessary.
+  All configuration is achieved via parameters on the #fn-link("theorem") function.
+  Use ```typc theorem.with(..)``` for your preset needs.
+  #h(1fr)#box[→ #fn-link("theorem")]
 
-Use #link(label("theoretic-toc()"))[```typ #theoretic.toc()```] to get a list of theorems, list of definitions, a table of contents containing theorems, etc.
+- Automatic numbering.
+  If your headings are numbered, it will use top-level heading numbers as the first component, otherwise it will simply number your theorems starting with Theorem 1.
+  #example(```typ
+    #theorem(number: "!!")[
+      Number can be overridden per-theorem.
+    ]
+    #theorem(number: 400)[
+      If a `number` is passed (as opposed to a string or content),
+    ]
+    #theorem[
+      ...subsequent theorems will pick it up.
+    ]
+    ```)
 
-Put ```typ #theoretic.solutions()``` at the end of your document to get the solutions (every theorem environment accepts a second positional arguments, which gets used as the solution).
-(Nothing will appear unless there are solutions to show.)
-#theoretic.theorem(kind: "exercise", supplement: "Exercise")[
-  Go look for the solution of this exercise at the end of this document.
-][
-  Yay! you found it!
-]
+- Flexible References via specific supplements.
+  #h(1fr)#box[ → #fn-link("show-ref")]
+  #example(```typ
+    @thm:foo vs @thm:foo[-] vs @thm:foo[--] vs @thm:foo[!] vs @thm:foo[!!] vs @thm:foo[!!!] vs @thm:foo[?] vs @thm:foo[Statement]
+    ```)
 
-= Proofs / QED
-In most cases, it should place the QED symbol appropriately automatically:
-#example(```typ
-#proof[This is a proof. $x=y$]
-#proof[
-  This is a proof.
-  $ x = y $
-]
-#proof[
-  #set math.equation(numbering: "(1)")
-  This is a proof.
-  $ x = y $
-]
-#proof[
-  This is a proof.
-  - #lorem(3) $ x = y $
-]
-#proof[
-  This is a proof.
-  - #lorem(3)
-]
-#proof[
-  This is a proof.
-  + #lorem(3)
+- Custom outlines: Outline for headings _and/or_ theorems.
+  #h(1fr)#box[ → #fn-link("toc")]
+  - Filter for specific kinds of theorem to create e.g. a list of definitions.
+  - Optionally sorted alphabetically!
+  - Theorems can have a different title for outlines (#link(label("theoretic-theorem.toctitle"), raw(lang: "typ", "theorem(toctitle: ..)"))) and can even have multiple entries in a sorted outline.
+  - Highly customizable! #h(1fr)#box[ → #fn-link("toc-entry")]
+    - (And this customization can be reused for regular outlines)#h(1fr)#box[→ #fn-link("show-entry-as")]
+
+- Exercise solutions:
+  #h(1fr)#box[ → #fn-link("solutions")]
+  - Every theorem environment accepts a second positional argument, which gets used as the solution.
+  - Solutions section automatically hides itself if there are no solutions to show.
+  #example(```typ
+    #theorem(kind: "exercise", supplement: "Exercise")[
+      Go look for the solution of this exercise at the end of this document.
+    ][
+      // no cheating! //
+    >>>  Yay! you found it!
+    ]
+    ```)
+
+- Automatic QED placement!
+  #h(1fr)#box[ → #fn-link("proof") & #fn-link("qed")]
+
+  In most cases, it should place the QED symbol appropriately automatically:
+  #example(```typ
+  #proof[This is a proof. $x=y$]
+  #proof[
+    This is a proof.
+    $ x = y $
+  ]
+  #proof[
+    #set math.equation(numbering: "(1)")
+    This is a proof.
+    $ x = y $
+  ]
+  #proof[
+    This is a proof.
+    - #lorem(3) $ x = y $
+  ]
+  #proof[
+    This is a proof.
+    - #lorem(3)
+  ]
+  #proof[
+    This is a proof.
     + #lorem(3)
       + #lorem(3)
         + #lorem(3)
-]
-```)
+          + #lorem(3)
+  ]
+  ```)
 
-Specifically, it works for lists, enums, and unnumbered block equations, which may be nested.
-If your proof ends wit some other block, you should might want to place a ```typ #qed()``` manually.
-For proper alignment with a block equation, use
-```typ
-#set math.equation(numbering: (..) => {qed()}, number-align: bottom)
-```
-placed directly in front of the equation.
+  Specifically, it works for lists, enums, and unnumbered block equations, which may be nested.
+  If your proof ends wit some other block, you should might want to place a ```typ #qed()``` manually.
+  For proper alignment with a block equation, use
+  ```typ
+  #set math.equation(numbering: (..) => {qed()}, number-align: bottom)
+  ```
+  placed directly in front of the equation.
+
+- Any theorem can be restated.
+  #h(1fr)#box[ → #fn-link("restate")]
+  #example(```typc
+  theoretic.restate(<thm:foo>)
+  // the prefix links to the original
+  ```)
+
 
 
 // = Open TODOs

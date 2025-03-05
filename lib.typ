@@ -6,7 +6,7 @@
 /// Default value of @theorem.fmt-prefix.
 /// #example(```typ
 /// #fmt-prefix([Theorem], [1.34], none)...
-/// 
+///
 /// #fmt-prefix([Theorem], [1.34], [Pythagoras])...
 /// ```)
 /// -> content
@@ -96,14 +96,14 @@
       if candidate.func() == math.equation and candidate.block and math.equation.numbering == none {
         _body = {
           _body.children.slice(0, -1).join()
-          set math.equation(numbering: (..) => {fmt-suffix()}, number-align: bottom)
+          set math.equation(numbering: (..) => { fmt-suffix() }, number-align: bottom)
           candidate
-          counter(math.equation).update((i) => {i - 1})
+          counter(math.equation).update(i => { i - 1 })
         }
       } else if candidate.func() == enum.item or candidate.func() == list.item {
         _body = {
           _body.children.slice(0, -1).join()
-          candidate.func()(_append-qed(candidate.body,  fmt-suffix))
+          candidate.func()(_append-qed(candidate.body, fmt-suffix))
         }
       } else {
         _body = {
@@ -114,13 +114,13 @@
     } else {
       if _body.func() == math.equation and _body.block and math.equation.numbering == none {
         _body = {
-          set math.equation(numbering: (..) => {fmt-suffix()}, number-align: bottom)
+          set math.equation(numbering: (..) => { fmt-suffix() }, number-align: bottom)
           _body
-          counter(math.equation).update((i) => {i - 1})
+          counter(math.equation).update(i => { i - 1 })
         }
       } else if _body.func() == enum.item or _body.func() == list.item {
         _body = {
-          _body.func()(_append-qed(_body.body,  fmt-suffix))
+          _body.func()(_append-qed(_body.body, fmt-suffix))
         }
       } else {
         _body = {
@@ -192,29 +192,23 @@
   /// // Default: @fmt-prefix.
   /// -> function
   fmt-prefix: fmt-prefix,
-
   /// // Default: @fmt-body.
   /// -> function
   fmt-body: fmt-body,
-
   /// Will be called at the end of the theorem if `_thm_needs_qed` hasn't been cleared. (E.g. by @qed)
   /// -> function | none
   fmt-suffix: none,
-
   /// Arguments to pass to the ```typ #block[]``` containing the theorem.
   /// -> dict
   block-args: (:),
-
   /// Used for filtering e.g. when creating table of theorems.
   /// -> string
   kind: "theorem",
-  
   /// What to label the environment.
   ///
   /// It is recommended to keep `kind` and `supplement` matching (except for "subtypes", e.g. one might have the kind of "Example" and "Counter-Example" both as ```typc "example"```)
   /// -> content
   supplement: "Theorem",
-
   ///- If ```typc auto```, will continue numbering from last numbered theorem.
   ///- If integer, it will contune the numbering of later theorems from the given number.
   ///- If content, it is shown as-is, with no side-effects.
@@ -240,26 +234,35 @@
   /// ```, scale-preview: 100%)
   /// -> auto | none | integer | content
   number: auto,
-
   /// Title of the Theorem. Usually shown after the number.
   /// -> none | content
   title: none,
-
   /// Title of the Theorem to be used in outlines.
-  /// ```typc auto``` to use the `title`.
-  /// -> auto | content
+  ///
+  /// - ```typc auto``` to use the `title`.
+  /// - ```typc none``` to hide it from the outlines.
+  ///
+  /// If you pass an array, in _sorted_ outlines (@toc.sort) it will be split into multiple entries.
+  /// All but the first one are marked as secondary.
+  ///
+  /// #example(scale-preview: 100%, ```typ
+  /// #theorem(
+  ///   title: [A to Z],
+  ///   toctitle: ([AAAAA], [ZZZZZZ])
+  /// )[
+  ///   Compare how this appears in different outlines!
+  /// ]
+  /// ```)
+  /// -> auto | content | array
   toctitle: auto,
-
   /// Label (for references)
   ///
   /// note: Simply putting a ```typ <label>``` after the ```typ #theorem[]``` does not work for referencing.
   /// -> label | string
   label: none,
-
   /// Theorem body
   /// -> content
   body,
-
   /// Optional Solution. Pass zero or one positional arguments here.
   ///
   /// #example(```typ
@@ -272,7 +275,7 @@
 ) = {
   // let number = number
   // if number == auto and label == none and title == none { number = none }
-  
+
   context {
     if heading.numbering != none {
       let prev = query(selector(<_thm_marker>).before(here()))
@@ -292,42 +295,50 @@
   if type(number) == int {
     thm-counter.update(number)
   }
-  block(width: 100%, ..block-args, {
-     context {
-      let thmnr = thm-counter.display("1")
-      let number = number
-      if number == auto or type(number) == int {
-        if heading.numbering == none {
-          number = thmnr
-        } else {
-          let h = counter(heading).get().first()
-          let h_fmt = numbering(heading.numbering, h).trim(".", at: end)
-          number = { h_fmt; "."; thmnr }
+  block(
+    width: 100%,
+    ..block-args,
+    {
+      context {
+        let thmnr = thm-counter.display("1")
+        let number = number
+        if number == auto or type(number) == int {
+          if heading.numbering == none {
+            number = thmnr
+          } else {
+            let h = counter(heading).get().first()
+            let h_fmt = numbering(heading.numbering, h).trim(".", at: end)
+            number = {
+              h_fmt
+              "."
+              thmnr
+            }
+          }
         }
-      }
-      let sol = none
-      if solution.pos().len() == 1 {
-        sol = solution.pos().first()
-      } else if solution.pos().len() > 1 {
-        panic("Illegal number of arguments. Only one solution allowed.")
-      }
-      let toctitle = if toctitle == auto { title } else { toctitle }
-      [#metadata((body: body, solution: sol, toctitle: toctitle))<_thm>]
-      let label = if type(label) == str { _label(label) } else { label }
-      [#metadata((theorem-kind: kind, supplement: supplement, number: number, title: title))#label]
-  
-      fmt-prefix(supplement, number, title)
-      h(0pt, weak: true)
-      _needs_qed.update(true)
+        let sol = none
+        if solution.pos().len() == 1 {
+          sol = solution.pos().first()
+        } else if solution.pos().len() > 1 {
+          panic("Illegal number of arguments. Only one solution allowed.")
+        }
+        let toctitle = if toctitle == auto { title } else { toctitle }
+        [#metadata((body: body, solution: sol, toctitle: toctitle))<_thm>]
+        let label = if type(label) == str { _label(label) } else { label }
+        [#metadata((theorem-kind: kind, supplement: supplement, number: number, title: title))#label]
 
-      let _body = _append-qed(body, fmt-suffix)
-      
-      fmt-body(_body, sol)
-      // if fmt-suffix != none {
-      //   fmt-suffix()
-      // }
-    }
-  })
+        fmt-prefix(supplement, number, title)
+        h(0pt, weak: true)
+        _needs_qed.update(true)
+
+        let _body = _append-qed(body, fmt-suffix)
+
+        fmt-body(_body, sol)
+        // if fmt-suffix != none {
+        //   fmt-suffix()
+        // }
+      }
+    },
+  )
 }
 
 /// Re-state a theorem.
@@ -363,9 +374,23 @@
   original = original.first()
   let base = query(selector(metadata).before(original.location(), inclusive: false)).last().value
   if original.value.number != none {
-    is(base.body, kind: original.value.theorem-kind, supplement: link(label, original.value.supplement), number: link(label, original.value.number), title: original.value.title, toctitle: none)
+    is(
+      base.body,
+      kind: original.value.theorem-kind,
+      supplement: link(label, original.value.supplement),
+      number: link(label, original.value.number),
+      title: original.value.title,
+      toctitle: none,
+    )
   } else {
-    is(base.body, kind: original.value.theorem-kind, supplement: link(label, original.value.supplement), number: none, title: original.value.title, toctitle: none)
+    is(
+      base.body,
+      kind: original.value.theorem-kind,
+      supplement: link(label, original.value.supplement),
+      number: none,
+      title: original.value.title,
+      toctitle: none,
+    )
   }
 }
 
@@ -374,7 +399,7 @@
 /// Default value of @proof.fmt-prefix.
 /// #example(```typ
 /// #proof-fmt-prefix([Proof], none, none)...
-/// 
+///
 /// #proof-fmt-prefix([Proof], none, [@pythagoras])...
 /// ```)
 /// -> content
@@ -420,7 +445,9 @@
   /// Same as for @theorem.
   /// -> arguments
   ..args,
-) = {theorem(kind: kind, supplement: supplement, number: number, fmt-prefix: fmt-prefix, fmt-suffix: fmt-suffix, ..args)}
+) = {
+  theorem(kind: kind, supplement: supplement, number: number, fmt-prefix: fmt-prefix, fmt-suffix: fmt-suffix, ..args)
+}
 
 /// Show-rule-function to be able to ```typ @``` labelled theorems.
 ///
@@ -435,10 +462,10 @@
 /// #theorem(label: <zl>, title: "Only Named", number: none)[#lorem(2)]
 /// #theorem(label: <y>, number: "Y")[#lorem(2)]
 /// #theorem(label: "5", number: none)[#lorem(2)]
-/// 
+///
 /// As a consequence of @fact and @pythagoras[!!]...
 /// ```, scale-preview: 100%)
-/// 
+///
 /// The reference can be controlled via the supplement passed:
 /// #{
 ///   set text(size: 0.8em)
@@ -464,51 +491,54 @@
   it,
 ) = {
   let el = it.element
-  if el != none and el.func() == metadata and type(el.value) == dictionary and el.value.at("theorem-kind", default: none) != none {
+  if (
+    el != none
+      and el.func() == metadata
+      and type(el.value) == dictionary
+      and el.value.at("theorem-kind", default: none) != none
+  ) {
     let val = el.value
     if it.supplement == [?] {
       link(it.target, [#val.supplement])
-    }
-    // else if it.supplement == [-] {
-    //   if val.number != none {
-    //     link(it.target, [#val.supplement #val.number])
-    //   } else if val.title != none {
-    //     link(it.target, [#val.supplement (#val.title)])
-    //   } else {
-    //     link(it.target, [#val.supplement])
-    //   }
-    // } else if it.supplement == [--] {
-    //   if val.number != none {
-    //     link(it.target, [#val.number])
-    //   } else if val.title != none {
-    //     link(it.target, [(#val.title)])
-    //   } else {
-    //     link(it.target, [*??*])
-    //   }
-    // } else if it.supplement == [!] {
-    //   if val.title != none {
-    //     link(it.target, [#val.title])
-    //   } else if val.title != none {
-    //     link(it.target, [(#val.title)])
-    //   } else {
-    //     link(it.target, [*??*])
-    //   }
-    // } else if it.supplement == [!!] {
-    //   link(it.target, [#val.title (#val.number)])
-    // } else if it.supplement == [!!!] {
-    //   link(it.target, [#val.title (#val.supplement #val.number)])
-    // } else if it.supplement == auto {
-    //   if val.number != none {
-    //     link(it.target, [#val.number])
-    //   } else if val.title != none {
-    //     link(it.target, [(#val.title)])
-    //   } else {
-    //     link(it.target, [*??*])
-    //   }
-    // } else {
-    //   link(it.target, [#it.supplement #val.number (#val.title)])
-    // }
-
+    } // else if it.supplement == [-] {
+     //   if val.number != none {
+     //     link(it.target, [#val.supplement #val.number])
+     //   } else if val.title != none {
+     //     link(it.target, [#val.supplement (#val.title)])
+     //   } else {
+     //     link(it.target, [#val.supplement])
+     //   }
+     // } else if it.supplement == [--] {
+     //   if val.number != none {
+     //     link(it.target, [#val.number])
+     //   } else if val.title != none {
+     //     link(it.target, [(#val.title)])
+     //   } else {
+     //     link(it.target, [*??*])
+     //   }
+     // } else if it.supplement == [!] {
+     //   if val.title != none {
+     //     link(it.target, [#val.title])
+     //   } else if val.title != none {
+     //     link(it.target, [(#val.title)])
+     //   } else {
+     //     link(it.target, [*??*])
+     //   }
+     // } else if it.supplement == [!!] {
+     //   link(it.target, [#val.title (#val.number)])
+     // } else if it.supplement == [!!!] {
+     //   link(it.target, [#val.title (#val.supplement #val.number)])
+     // } else if it.supplement == auto {
+     //   if val.number != none {
+     //     link(it.target, [#val.number])
+     //   } else if val.title != none {
+     //     link(it.target, [(#val.title)])
+     //   } else {
+     //     link(it.target, [*??*])
+     //   }
+     // } else {
+     //   link(it.target, [#it.supplement #val.number (#val.title)])
+     // }
     else if val.title != none {
       if val.number != none {
         if it.supplement == [-] {
@@ -540,7 +570,13 @@
         }
       }
     } else if val.number != none {
-      if it.supplement == [-] or it.supplement == [!] or it.supplement == [!!] or it.supplement == [!!!] or  it.supplement == auto {
+      if (
+        it.supplement == [-]
+          or it.supplement == [!]
+          or it.supplement == [!!]
+          or it.supplement == [!!!]
+          or it.supplement == auto
+      ) {
         link(it.target, [#val.supplement #val.number])
       } else if it.supplement == [--] {
         if val.number != none {
@@ -552,7 +588,14 @@
         link(it.target, [#it.supplement #val.number])
       }
     } else {
-      if it.supplement == [-] or it.supplement == [--] or it.supplement == [!] or it.supplement == [!!] or it.supplement == [!!!] or  it.supplement == auto {
+      if (
+        it.supplement == [-]
+          or it.supplement == [--]
+          or it.supplement == [!]
+          or it.supplement == [!!]
+          or it.supplement == [!!!]
+          or it.supplement == auto
+      ) {
         link(it.target, [#val.supplement])
       } else {
         link(it.target, [#it.supplement #val.number])
@@ -572,7 +615,7 @@
 #let solutions(
   /// Title/heading to use.
   /// -> content
-  title: "Solutions"
+  title: "Solutions",
 ) = context {
   let sols = query(<_thm>).filter(m => m.value.solution != none and m.value.solution != [])
   if sols.len() > 0 {
@@ -592,7 +635,14 @@
           [#val.supplement]
         }
       }
-      theorem(kind: "solution", supplement: "Solution", title: link(sol.location(), target), number: none, fmt-prefix: proof-fmt-prefix, sol.value.solution)
+      theorem(
+        kind: "solution",
+        supplement: "Solution",
+        title: link(sol.location(), target),
+        number: none,
+        fmt-prefix: proof-fmt-prefix,
+        sol.value.solution,
+      )
     }
   } else {
     [#metadata("No solutions. Should not link here.")<_thm_solutions>]
@@ -603,22 +653,249 @@
 /// -> string
 #let _to-string(
   /// -> content
-  content
+  content,
 ) = {
-  if content == none { "" }
-  else if type(content) == str { content}
-  else if content.has("text") { content.text }
-  else if content.has("children") { content.children.map(_to-string).join("") }
-  else if content.has("child") { _to-string(content.child) }
-  else if content.has("body") { _to-string(_to-string(content.body)) }
-  else if content == [] { "" }
-  else if content == [ ] { " " }
-  else if content.func() == ref { "_ref_" }
-  else {
+  if content == none { "" } else if type(content) == str { content } else if type(content) == array {
+    content.map(_to-string).join(", ")
+  } else if content.has("text") { content.text } else if content.has("children") {
+    content.children.map(_to-string).join("")
+  } else if content.has("child") { _to-string(content.child) } else if content.has("body") {
+    _to-string(_to-string(content.body))
+  } else if content == [] { "" } else if content == [ ] { " " } else if content.func() == ref { "_ref_" } else {
     let offending = content
     ""
   }
-} 
+}
+
+/// Create a toc entry.
+///
+/// Pass this to @toc using `.with(..)` to customize the `fmt-` parameters used.
+///
+/// This is used because since Typst 0.13, it is no longer possible to call outline.entry outside of an actual ourline element, and one "cannot outline metadata".
+///
+/// This manual uses
+/// //#example(scale-preview: 100%,
+/// #block(radius: 3pt, stroke: .5pt + luma(200), inset: 5pt, width: 100%, {
+/// set text(size: 0.9em)
+/// ```typc
+/// set par(justify: false)
+/// let indents = (0pt, 15pt, 37pt)
+/// let hang-indents = (15pt, 22pt, 54pt)
+/// let text-styles = ((weight: 700), (size: 10pt), (size: 9pt, weight: 500), (size: 9pt, fill: luma(20%)), )
+/// theoretic.toc(toc-entry: theoretic.toc-entry.with(
+///   indent: (level) => { indents.at(level - 1) },
+///   hanging-indent: (level) => { hang-indents.at(level - 1) },
+///   fmt-prefix: (prefix, level, _s) => {
+///     set text(..text-styles.at(level - 1), number-width: "tabular")
+///     prefix
+///     h(4pt)
+///   },
+///   fmt-body: (body, level, _s) => {
+///     set text(..text-styles.at(level - 1))
+///     body
+///   },
+///   fmt-fill: (level, _s) => {
+///     if level == 2 {
+///       set text(..text-styles.at(2))
+///       box(width: 1fr, align(right, repeat(gap: 9pt, justify: false, [.])))
+///     }
+///   },
+///   fmt-page: (page, level, _s) => {
+///     set text(..text-styles.at(level - 1), number-width: "tabular")
+///     box(width: 18pt, align(right, [#page]))
+///   },
+///   above: (level) => {
+///     if level == 1 {
+///       auto // paragraph spacing
+///     } else {
+///       7pt
+///     }
+///   },
+///   below: auto,
+/// ))
+/// ```})
+#let toc-entry(
+  /// -> int
+  level,
+  /// -> location
+  target,
+  /// -> content | none
+  prefix,
+  /// -> content
+  body,
+  /// -> content
+  page,
+  /// This is `true` for entries where the toc-title is an array, the entry was split and this is _not_ the first one (in order specified).
+  /// -> boolean
+  secondary: false,
+  /// How much to indent each entry.
+  ///
+  /// - If length, it will be multiplied with level - 1.
+  /// - If function, will be called with the level as argument.
+  /// -> relative length | function
+  indent: 1em,
+  /// How much more to indent subsequent lines (in addition th @toc-entry.indent).
+  ///
+  /// If the prefix is shorter than this, this will lead to a gap between prefix and body;
+  /// If the prefix is longer, the body will start immediately after the prefix.
+  ///
+  /// // In both cases subsequent lines of the body are indented by the given amount _plus_ the indent
+  ///
+  /// - If function, will be called with the level as argument.
+  /// - If `auto`, will use the width of the prefix
+  ///
+  /// #example(scale-preview: 100%, ```typ
+  /// >>> #show link: it => { show underline: ul => { ul.body }; it }
+  /// >>> #context[
+  /// #let example-entry = theoretic.toc-entry.with(1, here(), [Section 1.], lorem(6), [0])
+  /// #let example-entry-2 = theoretic.toc-entry.with(2, here(), [Section 1.1.], lorem(6), [0])
+  ///
+  /// // aligned with end of prefix
+  /// #example-entry(hanging-indent: auto)
+  /// #example-entry-2(hanging-indent: auto)
+  ///
+  /// #example-entry(hanging-indent: 1em)
+  /// #example-entry-2(hanging-indent: 1em)
+  /// #example-entry(hanging-indent: 80pt)
+  /// #example-entry-2(hanging-indent: 80pt)
+  /// >>> ]
+  /// ```)
+  /// -> relative length | function | auto
+  hanging-indent: auto,
+  /// - If function, will be called with the level as argument.
+  /// -> relative length | function
+  above: 0.7em,
+  /// - If function, will be called with the level as argument.
+  /// -> relative length | function
+  below: 0.7em,
+  /// #[]
+  /// -> function
+  fmt-prefix: (prefix, level, secondary) => {
+    if prefix != none {
+      prefix
+      h(0.5em, weak: false)
+    }
+  },
+  /// #[]
+  /// -> function
+  fmt-body: (body, level, secondary) => { if secondary [(#body) ] else [#body ] },
+  /// #[]
+  /// -> function
+  fmt-fill: (level, secondary) => { box(width: 1fr, repeat[.~]) },
+  /// #[]
+  /// -> function
+  fmt-page: (page, level, secondary) => { page },
+) = {
+  let indent = if type(indent) == function { indent(level) } else { indent * (level - 1) }
+  let prefix = fmt-prefix(prefix, level, secondary)
+  let width = measure(prefix).width
+
+  let hanging-indent = if hanging-indent == auto {
+    width
+  } else if type(hanging-indent) == function {
+    measure(h(hanging-indent(level))).width
+  } else {
+    measure(h(hanging-indent)).width
+  }
+  if width <= hanging-indent { width = hanging-indent }
+  let above = if type(above) == function { above(level) } else { above }
+  let below = if type(below) == function { below(level) } else { below }
+  block(
+    width: 100%,
+    above: above,
+    below: below,
+    inset: (left: indent),
+    {
+      link(
+        target,
+        {
+          h(hanging-indent)
+          box(
+            width: 1fr,
+            {
+              box(
+                width: width,
+                {
+                  h(-hanging-indent)
+                  prefix
+                },
+              )
+              h(-hanging-indent)
+              fmt-body(body, level, secondary)
+              fmt-fill(level, secondary)
+            },
+          )
+          fmt-page(page, level, secondary)
+        },
+      )
+    },
+  )
+}
+
+/// Helper function to adapt actual outlines to look the same as those made with @toc.
+/// This is useful if you want to have e.g. a list of figures and a list of definitons adn want them to share their style.
+///
+/// Note: Fot typst versions <= 0.12, this function is a bit "hacky" and might not always work.
+/// (It deconstructs the `outline.entry` based on heuristics.)
+///
+/// #example(dir: ttb, scale-preview: 100%, ```typ
+/// #import theoretic: show-entry-as, toc-entry
+///
+/// #outline(target: figure, title: [Typst Default])
+///
+/// #show outline.entry: show-entry-as(toc-entry.with(hanging-indent: 60pt, /*...*/))
+/// >>> #show link: it => { show underline: ul => { ul.body }; it }
+/// #outline(target: figure, title: [Using `theoretic.toc-entry`])
+///
+/// #figure(
+///   caption: [Example Figure],
+///   block(height: 2em, width: 100%, fill: gradient.linear(..color.map.viridis))
+/// )
+/// ```)
+#let show-entry-as(
+  /// Customize @toc-entry used.
+  ///
+  /// Expects a function taking five positional arguments (level, target, prefix, body, page).
+  /// -> function
+  toc-entry,
+) = {
+  entry => context {
+    if sys.version >= version(0, 13, 0) {
+      toc-entry(
+        entry.level,
+        entry.element.location(),
+        entry.prefix(),
+        entry.body(),
+        entry.page(),
+      )
+    } else {
+      if entry.body.has("children") {
+        let index = array(entry.body.children).position(s => regex("\d|^[A-z]$") in _to-string(s))
+        if entry.body.children.len() > index + 1 and regex("^:\s*$") in _to-string(entry.body.children.at(index + 1)) {
+          index = index + 1
+        }
+        let prefix = if index != none { entry.body.children.slice(0, index + 1).join() } else { none }
+        let body = if index != none { entry.body.children.slice(index + 1).join() } else { entry.body }
+        toc-entry(
+          entry.level,
+          entry.element.location(),
+          prefix,
+          body,
+          entry.page,
+        )
+      } else {
+        toc-entry(
+          entry.level,
+          entry.element.location(),
+          none,
+          entry.body,
+          entry.page,
+        )
+      }
+      v(-1em)
+    }
+  }
+}
 
 /// Create an outline that includes named theorems.
 ///
@@ -649,55 +926,96 @@
   /// -> list (string)
   exclude: ("proof", "solution"),
   /// Fake level to use for theorems.
-  /// Set this to some level greater than the depth if to avoid conflict in your show rules for `outline.entry`. 
-  /// -> integer
-  level: 4,
-  /// Fill for outline entries
-  /// -> content
-  fill: repeat[.],
+  ///
+  /// Set this to some level greater than the depth if to avoid conflict in your show rules for `outline.entry`.
+  ///
+  /// If `auto`, it will use `depth + 1`.
+  /// -> integer | auto
+  level: auto,
+  /// Customize @toc-entry used.
+  ///
+  /// Expects a function taking five positional arguments (level, target, prefix, body, page).
+  /// -> function
+  toc-entry: toc-entry,
   /// Whether to sort the entries alphabetically.
-  /// Only resepcted if `depth` is 0.
+  ///
+  /// Only respected if `depth` is 0.
+  ///
+  /// If true, this will also split entries where `toctitle` is an array into separate entries.
+  ///
   /// #example(```typ
   ///  #theorem(title: "Z")[Blah blah.]
   ///  #theorem(title: "A")[Blah blah.]
   ///  #heading(outlined: false, level: 3)[
   ///    Sorted Table of Theorems
   ///  ]
+  ///  #set text(size: 9pt)
   ///  #toc(
   ///    depth: 0,
   ///    sort: true,
+  ///    toc-entry: toc-entry.with(hanging-indent: 60pt),
   ///  )
   ///  ```, scale-preview: 100%)
   /// -> bool
-  sort: false
+  sort: false,
 ) = context {
+  let level = if level == auto { depth + 1 } else { level }
   let thms = query(selector(<_thm>).or(heading))
   if depth == 0 and sort {
-    thms = array(thms).filter(thm => { thm.func() != heading and thm.value.toctitle != none }).sorted(key: (thm) => { _to-string(thm.value.toctitle) })
+    thms = array(thms)
+      .filter(thm => {
+        thm.func() != heading and thm.value.toctitle != none
+      })
+      .map(thm => {
+        if type(thm.value.toctitle) == array {
+          let x = thm.value.toctitle.map(title => {
+            (loc: thm.location(), value: (toctitle: title, secondary: true))
+          })
+          x.at(0).value.secondary = false
+          x
+        } else { (loc: thm.location(), value: (toctitle: thm.value.toctitle)) }
+      })
+      .flatten()
+      .sorted(
+        key: thm => {
+          _to-string(thm.value.toctitle)
+        },
+      )
     let len = thms.len()
   }
   for thm in thms {
-    let pn = thm.location().page-numbering()
+    let loc = if type(thm) == dictionary { thm.loc } else { thm.location() }
+    let pn = loc.page-numbering()
     let p = if pn != none {
-      numbering(pn, ..counter(page).at(thm.location()))
+      numbering(pn, ..counter(page).at(loc))
     } else {
-      numbering("1", ..counter(page).at(thm.location()))
+      numbering("1", ..counter(page).at(loc))
     }
-    if thm.func() == heading {
+    if type(thm) != dictionary and thm.func() == heading {
       let level = thm.level
       if level > depth or thm.outlined == false { continue }
       let number = none
       if thm.numbering != none {
-        number = numbering(thm.numbering, ..counter(heading).at(thm.location()))
+        number = numbering(thm.numbering, ..counter(heading).at(loc))
       }
-      outline.entry(level, thm, [#number #thm.body], fill, p)
-      linebreak()
+      // outline.entry(level, thm, [#number #thm.body], fill, p)
+      // linebreak()
+      toc-entry(level, loc, number, thm.body, p)
+      // outline.entry(level, thm)
     } else {
-      let base = query(selector(metadata).after(thm.location(), inclusive: false)).first().value
+      let base = query(selector(metadata).after(loc, inclusive: false)).first().value
       if base == () or base.theorem-kind in exclude { continue }
-      if thm.value.toctitle != none {
-        outline.entry(level, thm, [#base.supplement #base.number (#thm.value.toctitle)], fill, p)
-        linebreak()
+      if type(thm.value.toctitle) == array {
+        toc-entry(level, loc, [#base.supplement #base.number], thm.value.toctitle.join(" / "), p)
+      } else if thm.value.toctitle != none {
+        toc-entry(
+          level,
+          loc,
+          [#base.supplement #base.number],
+          thm.value.toctitle,
+          p,
+          secondary: thm.value.at("secondary", default: false),
+        )
       }
     }
   }
