@@ -205,7 +205,7 @@ See #fn-link("theorem") (#ref(label("theoretic-theorem()"))) for a detailed desc
   ```
   placed directly in front of the equation.
 
-- Restate any theorem.
+- Any theorem can be restated.
   #h(1fr)#box[ → #fn-link("restate")]
   #example(```typc
   theoretic.restate(<thm:foo>)
