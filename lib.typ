@@ -927,8 +927,6 @@
   exclude: ("proof", "solution"),
   /// Fake level to use for theorems.
   ///
-  /// Set this to some level greater than the depth if to avoid conflict in your show rules for `outline.entry`.
-  ///
   /// If `auto`, it will use `depth + 1`.
   /// -> integer | auto
   level: auto,
