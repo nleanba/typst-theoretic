@@ -55,6 +55,7 @@
     //     }
     // }
   }
+  parbreak()
 }
 
 /// -> state(boolean)
@@ -762,10 +763,10 @@
   /// ```)
   /// -> relative length | function | auto
   hanging-indent: auto,
-  /// - If function, will be called with the level as argument.
+  /// If function, will be called with the level as argument.
   /// -> relative length | function
   above: 0.7em,
-  /// - If function, will be called with the level as argument.
+  /// If function, will be called with the level as argument.
   /// -> relative length | function
   below: 0.7em,
   /// #[]
@@ -925,9 +926,7 @@
   ///  ```, scale-preview: 100%)
   /// -> list (string)
   exclude: ("proof", "solution"),
-  /// Fake level to use for theorems.
-  ///
-  /// If `auto`, it will use `depth + 1`.
+  /// Fake level to use for theorems. If `auto`, it will use `depth + 1`.
   /// -> integer | auto
   level: auto,
   /// Customize @toc-entry used.

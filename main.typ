@@ -1,9 +1,14 @@
-#import "@preview/tidy:0.4.1"
 #import "lib.typ" as theoretic
+
+#import "@preview/tidy:0.4.2"
+#import "tidy-style.typ"
 
 #let example = tidy.styles.default.show-example.with(scope: (theoretic: theoretic,), preamble: "#import theoretic: *\n", scale-preview: 100%)//, dir: ttb)
 
-#set par(justify: true)
+#set par(justify: true, linebreaks: "optimized")
+#set text(fill: luma(30), size: 10pt)
+#show raw: set text(font: ("Iosevka Term", "IBM Plex Mono", "DejaVu Sans Mono"), size: 1.25 * 0.85em)
+
 #set heading(numbering: "1.1")
 #show heading.where(level: 3): set heading(numbering: none)
 #show heading.where(level: 4): set heading(numbering: none)
@@ -15,7 +20,6 @@
   columns: 1,
   footer: align(center)[#context counter(page).display(page.numbering)], // why is this neccesary? idk???
 )
-#set text(fill: luma(20%))
 
 /// Balance columns
 #let balance(content) = layout(size => {
@@ -180,13 +184,15 @@ See #fn-link("theorem") (#ref(label("theoretic-theorem()"))) for a detailed desc
     This is a proof.
     $ x = y $
   ]
-  #proof[
-    This is a proof.
-    - #lorem(3) $ x = y $
-  ]
+  ```)
+  #example(```typ
   #proof[
     This is a proof.
     - #lorem(3)
+  ]
+  #proof[
+    This is a proof.
+    - #lorem(3) $ x = y $
   ]
   #proof[
     This is a proof.
@@ -288,15 +294,16 @@ See #fn-link("theorem") (#ref(label("theoretic-theorem()"))) for a detailed desc
 
 #tidy.show-module(
   docs,
-  // style: tidy.styles.help,
+  style: tidy-style,
   // enable-cross-references: auto,
   first-heading-level: 1,
   show-outline: false,
   omit-private-definitions: true,
-  omit-private-parameters: false,
+  // omit-private-parameters: false,
   show-module-name: false,
-  omit-empty-param-descriptions: true,
+  // omit-empty-param-descriptions: true,
   // sort-functions: false,
+  break-param-descriptions: true
 )
 
 #theoretic.solutions()
