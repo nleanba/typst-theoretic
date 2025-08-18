@@ -37,8 +37,8 @@
   /// Theorem content.
   /// -> content
   body,
-  /// // enables creating a link/reference to the solution.
-  /// // -> location | none
+  // // enables creating a link/reference to the solution.
+  // // -> location | none
   /// -> content
   solution,
 ) = {
@@ -211,8 +211,8 @@
   /// -> content
   supplement: "Theorem",
   ///- If ```typc auto```, will continue numbering from last numbered theorem.
-  ///- If integer, it will contune the numbering of later theorems from the given number.
-  ///- If content, it is shown as-is, with no side-effects.
+  ///- If #type("integer"), it will continue the numbering of later theorems from the given number.
+  ///- If #type("content"), it is shown as-is, with no side-effects.
   ///#example(```typ
   /// >>> // #thm-counter.update(0)
   /// >>> // #counter(heading).update(0)
@@ -254,7 +254,7 @@
   ///   Compare how this appears in different outlines!
   /// ]
   /// ```)
-  /// -> auto | content | array
+  /// -> auto | none | content | array
   toctitle: auto,
   /// Label (for references)
   ///
@@ -414,6 +414,11 @@
 }
 
 /// This is just @theorem with different defaults.
+///
+/// // ```typc
+/// // theorem.with(kind: "proof", supplement: "Proof", number: none, fmt-prefix: proof-fmt-prefix, fmt-suffix: qed.with(force: false))
+/// // ```
+///
 /// #example(```typ
 /// #proof[#lorem(5)]
 /// #proof(title: [@pythagoras[!]])[#lorem(6)]
@@ -421,21 +426,17 @@
 /// -> content
 #let proof(
   /// #[]
-  /// -> content
-  kind: "proof",
-  /// #[]
-  /// -> content
-  supplement: "Proof",
-  /// #[]
-  /// -> string
-  number: none,
-  /// #[]
   /// -> function
   fmt-prefix: proof-fmt-prefix,
   /// #[]
-  /// -> function
+  /// -> function | none
   fmt-suffix: qed.with(force: false),
-  /// Same as for @theorem.
+  /// -> string
+  kind: "proof",
+  /// -> content
+  supplement: "Proof",
+  /// -> auto | none | integer | content
+  number: none,
   /// -> arguments
   ..args,
 ) = {
@@ -606,7 +607,7 @@
 /// Currently not customizable, working on it.
 /// -> content
 #let solutions(
-  /// Title/heading to use.
+  // Title/heading to use.
   /// -> content
   title: "Solutions",
 ) = context {
@@ -723,8 +724,8 @@
   secondary: false,
   /// How much to indent each entry.
   ///
-  /// - If length, it will be multiplied with level - 1.
-  /// - If function, will be called with the level as argument.
+  /// - If #type("relative length"), it will be multiplied with level - 1.
+  /// - If #type("function"), will be called with the level as argument.
   /// -> relative length | function
   indent: 1em,
   /// How much more to indent subsequent lines (in addition th @toc-entry.indent).
@@ -734,8 +735,8 @@
   ///
   /// // In both cases subsequent lines of the body are indented by the given amount _plus_ the indent
   ///
-  /// - If function, will be called with the level as argument.
-  /// - If `auto`, will use the width of the prefix
+  /// - If #type("function"), will be called with the level as argument.
+  /// - If ```typc auto```, will use the width of the prefix
   ///
   /// #example(scale-preview: 100%, ```typ
   /// >>> #show link: it => { show underline: ul => { ul.body }; it }
@@ -755,29 +756,20 @@
   /// ```)
   /// -> relative length | function | auto
   hanging-indent: auto,
-  /// If function, will be called with the level as argument.
+  /// If #type("function"), will be called with the level as argument.
   /// -> relative length | function
   above: 0.7em,
-  /// If function, will be called with the level as argument.
+  /// If #type("function"), will be called with the level as argument.
   /// -> relative length | function
   below: 0.7em,
-  /// #[]
   /// -> function
-  fmt-prefix: (prefix, level, secondary) => {
-    if prefix != none {
-      prefix
-      h(0.5em, weak: false)
-    }
-  },
-  /// #[]
+  fmt-prefix: (prefix, level, secondary) => if prefix != none { prefix; h(0.5em, weak: false) },
   /// -> function
-  fmt-body: (body, level, secondary) => { if secondary [(#body) ] else [#body ] },
-  /// #[]
+  fmt-body: (body, level, secondary) => if secondary [(#body) ] else [#body ],
   /// -> function
-  fmt-fill: (level, secondary) => { box(width: 1fr, repeat[.~]) },
-  /// #[]
+  fmt-fill: (level, secondary) => box(width: 1fr, repeat[.~]),
   /// -> function
-  fmt-page: (page, level, secondary) => { page },
+  fmt-page: (page, level, secondary) => page,
 ) = {
   let indent = if type(indent) == function { indent(level) } else { indent * (level - 1) }
   let prefix = fmt-prefix(prefix, level, secondary)
@@ -916,7 +908,7 @@
   ///    exclude: ("proof", "solution", "theorem")
   ///  )
   ///  ```, scale-preview: 100%)
-  /// -> list (string)
+  /// -> array (string)
   exclude: ("proof", "solution"),
   /// Fake level to use for theorems. If `auto`, it will use `depth + 1`.
   /// -> integer | auto

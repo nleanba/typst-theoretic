@@ -288,7 +288,10 @@ See #fn-link("theorem") (#ref(label("theoretic-theorem()"))) for a detailed desc
 #let docs = tidy.parse-module(
   read("lib.typ"),
   name: "theoretic",
-  scope: (theoretic: theoretic),
+  scope: (
+    theoretic: theoretic,
+    type: tidy-style.show-type.with(style-args: (colors: tidy.styles.default.colors)),
+  ),
   preamble: "#import theoretic: *\n#set heading(outlined: false)\n",
 )
 
@@ -303,7 +306,7 @@ See #fn-link("theorem") (#ref(label("theoretic-theorem()"))) for a detailed desc
   show-module-name: false,
   // omit-empty-param-descriptions: true,
   // sort-functions: false,
-  break-param-descriptions: true
+  break-param-descriptions: true,
 )
 
 #theoretic.solutions()
