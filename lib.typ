@@ -325,7 +325,7 @@
         let toctitle = if toctitle == auto { title } else { toctitle }
         [#metadata((body: body, solution: sol, toctitle: toctitle))<_thm>]
         let label = if type(label) == str { _label(label) } else { label }
-        [#metadata((theorem-kind: kind, supplement: supplement, number: number, title: title))#label]
+        [#metadata((args: (block-args: block-args, fmt-body: fmt-body, fmt-prefix: fmt-prefix, fmt-suffix: fmt-suffix), theorem-kind: kind, supplement: supplement, number: number, title: title))#label]
 
         fmt-prefix(supplement, number, title)
         h(0pt, weak: true)
@@ -346,27 +346,26 @@
 ///
 /// It will reuse the original kind, supplement, number, title, and body. It will _not_ re-emit the solution or label, and it will use `toctitle: none` to avoid duplicate toc entries.
 ///
-/// It is currently not able to pick up any of the other configuration of the original theorem, therefore pass @restate.is if you modified e.g. any of the `fmt-`s.
 /// #example(```typ
 /// #let proposition = theorem.with(
 ///   kind: "proposition",
 ///   supplement: "Proposition",
-///   fmt-body: (b, s) => { text(fill: red, {b;s}) }
 /// )
 /// #proposition(title: "Funky!", label: <funky>)[Blah _blah_ blah.]
 /// Restated:
 /// #restate("funky")
-/// Restated with explicit kind:
-/// #restate(<funky>, is: proposition)
+/// Restated with customizations:
+/// #restate(<funky>, fmt-body: (b, s) => { text(fill: red, {b;s}) })
 /// ```, scale-preview: 100%);
 /// -> content
 #let restate(
   /// Label of the theorem to restate.
   /// -> label | string
   label,
-  /// Theorem function to use.
-  /// -> function
-  is: theorem,
+  /// Override arguments for the theorem function.
+  ///
+  /// (Setting body, solution, kind, supplement, number, title or toctitle here is not recommended.)
+  ..args,
 ) = context {
   let label = label
   if type(label) == str { label = _label(label) }
@@ -374,25 +373,18 @@
   if original.len() != 1 { panic("Cannot restate non-unique or non-existent label.") }
   original = original.first()
   let base = query(selector(metadata).before(original.location(), inclusive: false)).last().value
-  if original.value.number != none {
-    is(
-      base.body,
-      kind: original.value.theorem-kind,
-      supplement: link(label, original.value.supplement),
-      number: link(label, original.value.number),
-      title: original.value.title,
-      toctitle: none,
-    )
-  } else {
-    is(
-      base.body,
-      kind: original.value.theorem-kind,
-      supplement: link(label, original.value.supplement),
-      number: none,
-      title: original.value.title,
-      toctitle: none,
-    )
-  }
+  let fmt-prefix = args.named().at("fmt-prefix", default: original.value.args.fmt-prefix)
+  theorem(
+    ..original.value.args,
+    base.body,
+    kind: original.value.theorem-kind,
+    supplement: original.value.supplement,
+    number: original.value.number,
+    title: original.value.title,
+    toctitle: none,
+    ..args,
+    fmt-prefix: (..a) => link(label, fmt-prefix(..a)),
+  )
 }
 
 /// Function to run at beginning of proof.

@@ -45,7 +45,7 @@
         let name = text(fn.name, fill: style-args.colors.at("signature-func-name", default: rgb("#4b69c6")))
         let params = items.join(", ")
         let return-types = if "return-types" in fn and fn.return-types != none {
-          " → "
+          " -> "
           fn.return-types.map(x => show-type(x, style-args: style-args)).join(" ")
         }
         let x = measure({

@@ -34,7 +34,7 @@ Example Usage:
 - Automatic QED placement!
 - Any theorem can be restated.
 
-Please see the PDF manual for more details.
+Please see the PDF manual for examples and more details.
 
 ## Manual
 
