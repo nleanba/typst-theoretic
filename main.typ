@@ -11,7 +11,7 @@
 
 #set par(justify: true, linebreaks: "optimized")
 #set text(fill: luma(30), size: 10pt)
-#show raw: set text(font: ("Iosevka Term", "IBM Plex Mono", "DejaVu Sans Mono"), size: 1.25 * 0.85em)
+#show raw: set text(font: ("Iosevka Term", "IBM Plex Mono", "DejaVu Sans Mono"), size: 1.25 * 6pt)
 
 #set heading(numbering: "1.1")
 #show heading.where(level: 3): set heading(numbering: none)
@@ -224,63 +224,44 @@ See #fn-link("theorem") (#ref(label("theoretic-theorem()"))) for a detailed desc
 
 // = Open TODOs
 // - Ability to reference enumerations within theorem ("See Proposition 2.25 (a)")
-// - Re-stated theorems should automatically use same `theorem()` function.
-
 
 #pagebreak(weak: true)
-= Examples
-#theoretic.theorem(
-  kind: "example",
-  supplement: "Example",
-  "A complicated example showing some configuration possibilities",
-)[
-  #example(
-    dir: btt,
-    ```typ
-    >>> #counter("_thm").update(0)
-    >>> #set heading(numbering: none)
-    >>> #pad(x: 6pt, y: 4pt)[
-    #set text(font: "Besley*", size: 9pt)
-    #let theorem = theorem.with(
-      fmt-prefix: (s, n, t) => {
-        text(font: "Besley* Narrow Semi")[#s #n]
-        if t!= none {
-          h(2pt)
-          box(fill: oklch(70%, 0.17, 307.4deg, 20%), outset: (y: 4pt), inset: (x: 2pt), radius: 2pt, text(fill: oklch(44.67%, 0.15, 307.4deg), font: "Besley* Semi", t))
-        }
-        h(1em)
-      },
-      block-args: (
-        stroke: (left: 0.5pt + oklch(44.67%, 0.15, 307.4deg)),
-        outset: (left: 4pt, right: 0pt, y: 4pt),
-      ),
-    )
-    #let ex = theorem.with(
-      kind: "example",
-      supplement: "Example",
-      fmt-prefix: (s, n, t) => {
-        text(font: "Besley*", stretch: 85%)[#s #n]
-        if t!= none [ (#t)]
-        h(1em)
-      },
-      fmt-body: (b, _) => { emph(b) },
-    )
-    #let qed = qed.with(suffix: smallcaps[#h(1fr)_qed._])
-    #let proof = proof.with(fmt-suffix: qed.with(force: false))
+= Preset Styles
 
-    #lorem(20)
-    #theorem(label: <e.g>)[#lorem(9)]
-    #proof[@e.g][+ #lorem(18)]
-    #theorem("Name")[#lorem(6)]
-    #ex[#lorem(10)]
-    #ex("Named Example")[
-      To avoid having examples and such show up in the toc, use the `toc.exclude` parameter.
-    ]
-    #lorem(20)
-    >>> ]
-    ```,
+Use with
+```typ
+#import "lib.typ" as theoretic
+#import theoretic.styles.<name>: *
+```
+
+#for (style-name, style) in dictionary(theoretic.styles) {
+  [== #raw(style-name)]
+  set text(font: "Besley", size: 9pt) if style-name == "fancy"
+  if style-name == "fancy" [
+    This style is intended#footnote[It still looks okay in other fonts, but it does not reach full potential.] for use with a font that supports `stretch: 85%` and `weight: "semibold"`. It is here shown using the font "Besley\*", #link("https://github.com/indestructible-type/Besley/tree/master/fonts/ttf")[which you can download on GitHub].
+  ]
+  columns(
+    2,
+    {
+      for (name, env) in dictionary(style) {
+        if name == "theorem" {
+          env[#lorem(10)]
+        } else if type(env) == function and not "QED" in name and not name.starts-with("_") {
+          env[#lorem(3)]
+        }
+      }
+      colbreak()
+      for (name, env) in dictionary(style) {
+        if name == "theorem" {
+          env(toctitle: none)[Title][#lorem(10)]
+        } else if type(env) == function and not "QED" in name and not name.starts-with("_") {
+          env(toctitle: none)[Title][#lorem(3)]
+        }
+      }
+    },
   )
-]
+}
+
 
 #set page(
   numbering: (.., i) => {
@@ -295,7 +276,7 @@ See #fn-link("theorem") (#ref(label("theoretic-theorem()"))) for a detailed desc
 = Detailed Documentation of all Exported Symbols
 
 #let docs = tidy.parse-module(
-  read("lib.typ"),
+  read("src/base.typ"),
   name: "theoretic",
   scope: (
     theoretic: theoretic,
