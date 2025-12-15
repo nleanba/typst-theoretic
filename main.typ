@@ -99,10 +99,8 @@ This package provides opinionated functions to create theorems and similar envir
     Ends with Equation? No Problem:
     $ norm(x) = sqrt( sum_(k = 1)^d x_k ) . $
   ]
-  #theorem(title: "Foo", label: <thm:foo>)[
-    This is a named theorem.
-  ]
-  #proof(title: [@thm:foo[-]])[
+  #theorem(<thm:foo>)[Foo][This is a named theorem.]
+  #proof[@thm:foo[-]][
     - Ends with a list or enum? Easy.
   ]
   ```)
@@ -158,14 +156,14 @@ See #fn-link("theorem") (#ref(label("theoretic-theorem()"))) for a detailed desc
 
 - Exercise solutions:
   #h(1fr)#box[ → #fn-link("solutions")]
-  - Every theorem environment accepts a second positional argument, which gets used as the solution.
+  - Every theorem environment can have a solution, which is shown in a separate section.
   - Solutions section automatically hides itself if there are no solutions to show.
   #example(```typ
-    #theorem(kind: "exercise", supplement: "Exercise")[
-      Go look for the solution of this exercise at the end of this document.
-    ][
+    #theorem(kind: "exercise", supplement: "Exercise", solution: [
       // no cheating! //
     >>>  Yay! you found it!
+    ])[
+      Go look for the solution of this exercise at the end of this document.
     ]
     ```)
 
@@ -229,7 +227,7 @@ See #fn-link("theorem") (#ref(label("theoretic-theorem()"))) for a detailed desc
 = Examples
 #theoretic.theorem(
   kind: "example", supplement: "Example",
-  title: "A complicated example showing some configuration possibilities"
+  "A complicated example showing some configuration possibilities"
 )[
   #example(
     dir: btt,
@@ -267,10 +265,10 @@ See #fn-link("theorem") (#ref(label("theoretic-theorem()"))) for a detailed desc
 
     #lorem(20)
     #theorem(label: <e.g>)[#lorem(9)]
-    #proof(title: [@e.g])[+ #lorem(18)]
-    #theorem(title: "Name")[#lorem(6)]
+    #proof[@e.g][+ #lorem(18)]
+    #theorem("Name")[#lorem(6)]
     #ex[#lorem(10)]
-    #ex(title: "Named Example")[
+    #ex("Named Example")[
       To avoid having examples and such show up in the toc, use the `toc.exclude` parameter.
     ]
     #lorem(20)

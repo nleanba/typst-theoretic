@@ -1,6 +1,3 @@
-/// clashes with parameter name
-#let _label = label
-
 /// Function to run at beginning of theorem.
 ///
 /// Default value of @theorem.fmt-prefix.
@@ -235,7 +232,9 @@
   /// ```, scale-preview: 100%)
   /// -> auto | none | integer | content
   number: auto,
-  /// Title of the Theorem. Usually shown after the number.
+  /// Title of the Theorem. Usually shown in parentheses after the number.
+  ///
+  /// _This can also be passed as apositional argument._
   /// -> none | content
   title: none,
   /// Title of the Theorem to be used in outlines.
@@ -258,24 +257,57 @@
   toctitle: auto,
   /// Label (for references)
   ///
-  /// note: Simply putting a ```typ <label>``` after the ```typ #theorem[]``` does not work for referencing.
-  /// -> label | string
+  /// _This can also be passed as a positional argument. In that case it must be a `label` and not a `string`._
+  ///
+  /// NB: Simply putting a ```typ <label>``` after the ```typ #theorem[]``` does not work for referencing.
+  /// -> none | label | string
   label: none,
-  /// Theorem body
-  /// -> content
-  body,
-  /// Optional Solution. Pass zero or one positional arguments here.
+  /// #parbreak()
+  /// Optional Solution.  See also @solutions.
   ///
   /// #example(```typ
-  /// #theorem[#lorem(5)][This will show up wherever `#theoretic.solutions()` is placed.]
+  /// #theorem(solution: [This will show up wherever `#theoretic.solutions()` is placed.])[#lorem(5)]
   /// ```, scale-preview: 100%)
+  /// -> none | content
+  solution: none,
+  /// The last positional argument given is used as the theorem body.
   ///
-  /// See @solutions.
-  /// -> content
-  ..solution,
+  /// Other positional arguments are used for the title and label, depending on their type.
+  /// #example(```typ
+  /// // Any of these work:
+  /// #theorem(<positional>)[Positional][#lorem(4)]
+  /// #theorem(label: <named>, title: [Named])[#lorem(4)]
+  /// #theorem([Mixed], label: <mixed>)[#lorem(4)]
+  /// ```, scale-preview: 100%)
+  /// -> arguments
+  ..unnamed-and-body,
 ) = {
   // let number = number
   // if number == auto and label == none and title == none { number = none }
+
+  let body = unnamed-and-body.pos().last()
+
+  let title = if title != none {
+    title
+  } else if unnamed-and-body.pos().len() > 1 {
+    unnamed-and-body.pos().find(p => type(p) == content or type(p) == str)
+  } else {
+    none
+  }
+
+  let label = if label != none {
+    if type(label) == std.label {
+      label
+    } else {
+      std.label(label)
+    }
+  } else if unnamed-and-body.pos().len() > 1 {
+    unnamed-and-body.pos().find(p => type(p) == std.label)
+  } else {
+    none
+  }
+
+  let toctitle = if toctitle == auto { title } else { toctitle }
 
   context {
     if heading.numbering != none {
@@ -316,16 +348,14 @@
             }
           }
         }
-        let sol = none
-        if solution.pos().len() == 1 {
-          sol = solution.pos().first()
-        } else if solution.pos().len() > 1 {
-          panic("Illegal number of arguments. Only one solution allowed.")
-        }
-        let toctitle = if toctitle == auto { title } else { toctitle }
-        [#metadata((body: body, solution: sol, toctitle: toctitle))<_thm>]
-        let label = if type(label) == str { _label(label) } else { label }
-        [#metadata((args: (block-args: block-args, fmt-body: fmt-body, fmt-prefix: fmt-prefix, fmt-suffix: fmt-suffix), theorem-kind: kind, supplement: supplement, number: number, title: title))#label]
+        [#metadata((body: body, solution: solution, toctitle: toctitle))<_thm>]
+        [#metadata((
+            args: (block-args: block-args, fmt-body: fmt-body, fmt-prefix: fmt-prefix, fmt-suffix: fmt-suffix),
+            theorem-kind: kind,
+            supplement: supplement,
+            number: number,
+            title: title,
+          ))#label]
 
         fmt-prefix(supplement, number, title)
         h(0pt, weak: true)
@@ -333,7 +363,7 @@
 
         let _body = _append-qed(body, fmt-suffix)
 
-        fmt-body(_body, sol)
+        fmt-body(_body, solution)
         // if fmt-suffix != none {
         //   fmt-suffix()
         // }
@@ -344,18 +374,20 @@
 
 /// Re-state a theorem.
 ///
-/// It will reuse the original kind, supplement, number, title, and body. It will _not_ re-emit the solution or label, and it will use `toctitle: none` to avoid duplicate toc entries.
+/// It will reuse the original kind, supplement, number, title, body, and styling.
+/// It will _not_ re-emit the solution or label, and it will use `toctitle: none` to avoid duplicate toc entries.
 ///
 /// #example(```typ
 /// #let proposition = theorem.with(
 ///   kind: "proposition",
 ///   supplement: "Proposition",
+///   fmt-prefix: (s,n,t) => smallcaps({ s ; if n != none [ #n]; if t != none [ (#t)]; h(1em) })
 /// )
-/// #proposition(title: "Funky!", label: <funky>)[Blah _blah_ blah.]
+/// #proposition(<funky>)[Funky!][Blah _blah_ blah.]
 /// Restated:
 /// #restate("funky")
 /// Restated with customizations:
-/// #restate(<funky>, fmt-body: (b, s) => { text(fill: red, {b;s}) })
+/// #restate(<funky>, fmt-body: (b, s) => text(red, {b; s}))
 /// ```, scale-preview: 100%);
 /// -> content
 #let restate(
@@ -368,7 +400,7 @@
   ..args,
 ) = context {
   let label = label
-  if type(label) == str { label = _label(label) }
+  if type(label) == str { label = std.label(label) }
   let original = query(label)
   if original.len() != 1 { panic("Cannot restate non-unique or non-existent label.") }
   original = original.first()
@@ -376,11 +408,11 @@
   let fmt-prefix = args.named().at("fmt-prefix", default: original.value.args.fmt-prefix)
   theorem(
     ..original.value.args,
+    original.value.title,
     base.body,
     kind: original.value.theorem-kind,
     supplement: original.value.supplement,
     number: original.value.number,
-    title: original.value.title,
     toctitle: none,
     ..args,
     fmt-prefix: (..a) => link(label, fmt-prefix(..a)),
@@ -421,7 +453,7 @@
 ///
 /// #example(```typ
 /// #proof[#lorem(5)]
-/// #proof(title: [@pythagoras[!]])[#lorem(6)]
+/// #proof[@pythagoras[!]][#lorem(6)]
 /// ```, scale-preview: 100%)
 /// -> content
 #let proof(
@@ -452,7 +484,7 @@
 /// >>> // #set heading(numbering: "1.1.")
 /// #show ref: theoretic.show-ref
 /// #theorem(label: <fact>, supplement: "Fact")[#lorem(2)]
-/// #theorem(label: <pythagoras>, title: "Pythagoras")[#lorem(2)]
+/// #theorem(label: <pythagoras>,"Pythagoras")[#lorem(2)]
 /// #theorem(label: <zl>, title: "Only Named", number: none)[#lorem(2)]
 /// #theorem(label: <y>, number: "Y")[#lorem(2)]
 /// #theorem(label: "5", number: none)[#lorem(2)]
@@ -632,9 +664,9 @@
       theorem(
         kind: "solution",
         supplement: "Solution",
-        title: link(sol.location(), target),
         number: none,
         fmt-prefix: proof-fmt-prefix,
+        link(sol.location(), target),
         sol.value.solution,
       )
     }
@@ -649,13 +681,31 @@
   /// -> content
   content,
 ) = {
-  if content == none { "" } else if type(content) == str { content } else if type(content) == array {
+  if content == none {
+    ""
+  } else if type(content) == str {
+    content
+  } else if type(content) == array {
     content.map(_to-string).join(", ")
-  } else if content.has("text") { content.text } else if content.has("children") {
-    if content.children.len() == 0 { "" } else { content.children.map(_to-string).join("") }
-  } else if content.has("child") { _to-string(content.child) } else if content.has("body") {
+  } else if content.has("text") {
+    content.text
+  } else if content.has("children") {
+    if content.children.len() == 0 {
+      ""
+    } else {
+      content.children.map(_to-string).join("")
+    }
+  } else if content.has("child") {
+    _to-string(content.child)
+  } else if content.has("body") {
     _to-string(_to-string(content.body))
-  } else if content == [] { "" } else if content == [ ] { " " } else if content.func() == ref { "_ref_" } else {
+  } else if content == [] {
+    ""
+  } else if content == [ ] {
+    " "
+  } else if content.func() == ref {
+    "_ref_"
+  } else {
     let offending = content
     ""
   }
@@ -763,7 +813,10 @@
   /// -> relative length | function
   below: 0.7em,
   /// -> function
-  fmt-prefix: (prefix, level, secondary) => if prefix != none { prefix; h(0.5em, weak: false) },
+  fmt-prefix: (prefix, level, secondary) => if prefix != none {
+    prefix
+    h(0.5em, weak: false)
+  },
   /// -> function
   fmt-body: (body, level, secondary) => if secondary [(#body) ] else [#body ],
   /// -> function
@@ -925,8 +978,8 @@
   /// If true, this will also split entries where `toctitle` is an array into separate entries.
   ///
   /// #example(```typ
-  ///  #theorem(title: "Z")[Blah blah.]
-  ///  #theorem(title: "A")[Blah blah.]
+  ///  #theorem("Z")[Blah blah.]
+  ///  #theorem("A")[Blah blah.]
   ///  #heading(outlined: false, level: 3)[
   ///    Sorted Table of Theorems
   ///  ]
