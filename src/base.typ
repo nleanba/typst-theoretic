@@ -67,14 +67,17 @@
 /// -> content
 #let qed(
   /// -> content
-  suffix: [#h(1fr)$square$],
+  suffix: sym.qed,
   /// Whether to place suffix no matter the `_thm_needs_qed` flag.
   /// -> boolean
   force: true,
 ) = context {
   if force or _needs_qed.get() {
     _needs_qed.update(false)
-    suffix
+    box()
+    h(1fr) 
+    sym.wj
+    box(suffix)
   }
 }
 

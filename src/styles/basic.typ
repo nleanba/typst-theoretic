@@ -1,4 +1,5 @@
 #import "../base.typ" as tt
+// if you write your own style, import "@preview/theoretic:.." here instead.
 
 #let _fmt = (
   fmt-prefix: (supplement, number, title) => {
@@ -6,7 +7,8 @@
       supplement
       if number != none [ #number]
       if title != none [ (#title)]
-      [.~]
+      [.]
+      h(0.6em)
     })
   },
   fmt-body: tt.fmt-body,
@@ -29,7 +31,7 @@
 #let note = tt.theorem.with(.._fmt, supplement: "Note", kind: "note", number: none)
 #let claim = tt.theorem.with(.._fmt, supplement: "Claim", kind: "claim", number: none)
 
-#let QED = tt.qed
+#let QED = tt.qed.with(suffix: sym.qed)
 
 #let proof = tt.proof.with(
   fmt-prefix: (supplement, number, title) => {
@@ -37,7 +39,8 @@
       supplement
       if number != none [ #number]
       if title != none [ of #title]
-      [.~]
+      [.]
+      h(0.6em)
     })
   },
   fmt-body: _fmt.fmt-body,

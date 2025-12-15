@@ -1,4 +1,5 @@
 #import "../base.typ" as tt
+// if you write your own style, import "@preview/theoretic:.." here instead.
 
 #let _badge(title, hue: 142.5deg) = {
   box(
@@ -51,22 +52,41 @@
   },
 )
 
-#let theorem = tt.theorem.with(.._fmt_strong(hue: 142.5deg), supplement: "Theorem", kind: "theorem")
-#let proposition = tt.theorem.with(.._fmt_strong(hue: 142.5deg), supplement: "Proposition", kind: "proposition")
-#let lemma = tt.theorem.with(.._fmt_strong(hue: 142.5deg), supplement: "Lemma", kind: "lemma")
-#let corollary = tt.theorem.with(.._fmt_strong(hue: 142.5deg), supplement: "Corollary", kind: "corollary")
+#let theorem = tt.theorem.with(.._fmt_strong(hue: 307.4deg), supplement: "Theorem", kind: "theorem")
+#let proposition = tt.theorem.with(.._fmt_strong(hue: 255.8deg), supplement: "Proposition", kind: "proposition")
+#let lemma = tt.theorem.with(.._fmt_strong(hue: 255.8deg), supplement: "Lemma", kind: "lemma")
+#let corollary = tt.theorem.with(.._fmt_strong(hue: 255.8deg), supplement: "Corollary", kind: "corollary")
 #let definiton = tt.theorem.with(.._fmt_strong(hue: 142.5deg), supplement: "Definition", kind: "definiton")
-#let exercise = tt.theorem.with(.._fmt_strong(hue: 142.5deg), supplement: "Exercise", kind: "exercise")
+#let exercise = tt.theorem.with(.._fmt_strong(hue: 1deg), supplement: "Exercise", kind: "exercise")
 #let algorithm = tt.theorem.with(.._fmt_strong(hue: 142.5deg), supplement: "Algorithm", kind: "algorithm")
 #let axiom = tt.theorem.with(.._fmt_strong(hue: 142.5deg), supplement: "Axiom", kind: "axiom")
 
-#let example = tt.theorem.with(.._fmt(hue: 0deg), supplement: "Example", kind: "example", number: none)
-#let counter-example = tt.theorem.with(.._fmt(hue: 0deg), supplement: "Counter-Example", kind: "example", number: none)
-#let remark = tt.theorem.with(.._fmt(hue: 0deg), supplement: "Remark", kind: "remark", number: none)
-#let note = tt.theorem.with(.._fmt(hue: 0deg), supplement: "Note", kind: "note", number: none)
-#let claim = tt.theorem.with(.._fmt(hue: 0deg), supplement: "Claim", kind: "claim", number: none)
+#let example = tt.theorem.with(
+  .._fmt(hue: 0deg),
+  fmt-body: (b, s) => {
+    set text(fill: oklch(44.67%, 0, 0deg))
+    tt.fmt-body(b, s)
+  },
+  supplement: "Example",
+  kind: "example",
+)
+#let counter-example = example.with(supplement: "Counter-Example")
+#let remark = tt.theorem.with(.._fmt(hue: 0deg), supplement: "Remark", kind: "remark")
+#let note = tt.theorem.with(.._fmt(hue: 0deg), supplement: "Note", kind: "note")
+#let claim = tt.theorem.with(.._fmt(hue: 0deg), supplement: "Claim", kind: "claim")
 
-#let QED = tt.qed
+#let QED = tt.qed.with(
+  suffix: {
+    h(1em)
+    $square$
+  },
+)
+#let QED-BOLT = tt.qed.with(
+  suffix: {
+    h(1em)
+    [$limits(square)^arrow.zigzag$]
+  },
+)
 
 #let proof = tt.proof.with(
   fmt-prefix: (supplement, number, title) => {

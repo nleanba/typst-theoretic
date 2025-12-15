@@ -11,7 +11,7 @@
 
 #set par(justify: true, linebreaks: "optimized")
 #set text(fill: luma(30), size: 10pt)
-#show raw: set text(font: ("Iosevka Term", "IBM Plex Mono", "DejaVu Sans Mono"), size: 1.25 * 6pt)
+#show raw: set text(font: ("Iosevka Term", "IBM Plex Mono", "DejaVu Sans Mono"), size: 1.25 * 0.8em)
 
 #set heading(numbering: "1.1")
 #show heading.where(level: 3): set heading(numbering: none)
@@ -225,6 +225,15 @@ See #fn-link("theorem") (#ref(label("theoretic-theorem()"))) for a detailed desc
 // = Open TODOs
 // - Ability to reference enumerations within theorem ("See Proposition 2.25 (a)")
 
+= Styling
+
+In case you are not happy with one of the styled presets, or if you want to add more kinds of theorem -- e.g. for other langauges,
+you can customize the formatting by overriding the `fmt-prefix`, `fmt-body`, `fmt-suffix` and `block-args` parameters.
+
+For how this can look, I reccomend looking at how the predefined styles are made: #link("https://github.com/nleanba/typst-theoretic/tree/v0.3.0/src/styles")[See the code on GitHub].
+
+// TODO
+
 #pagebreak(weak: true)
 = Preset Styles
 
@@ -237,23 +246,25 @@ Use with
 #for (style-name, style) in dictionary(theoretic.styles) {
   [== #raw(style-name)]
   set text(font: "Besley", size: 9pt) if style-name == "fancy"
+  show raw: set text(font: "Iosevka", size: 8.5pt) if style-name == "fancy"
+
   if style-name == "fancy" [
-    This style is intended#footnote[It still looks okay in other fonts, but it does not reach full potential.] for use with a font that supports `stretch: 85%` and `weight: "semibold"`. It is here shown using the font "Besley\*", #link("https://github.com/indestructible-type/Besley/tree/master/fonts/ttf")[which you can download on GitHub].
+    This style is intended#footnote[It still looks okay in other fonts, but it does not reach full potential. Compare: #h(8pt) #box(width: 6cm, style.lemma(toctitle: none)[Lorem][ipsum.])] for use with a font that supports `stretch: 85%` and `weight: "semibold"`. It is here shown using the font "Besley\*", #link("https://github.com/indestructible-type/Besley/tree/master/fonts/ttf")[which you can download on GitHub].
   ]
   columns(
     2,
     {
       for (name, env) in dictionary(style) {
         if name == "theorem" {
-          env[#lorem(10)]
+          env[This is an example theorem created using #raw(lang: "typ", "#" + name + "[...]").]
         } else if type(env) == function and not "QED" in name and not name.starts-with("_") {
-          env[#lorem(3)]
+          env[Using #raw(lang: "typ", "#" + name + "[...]").]
         }
       }
       colbreak()
       for (name, env) in dictionary(style) {
         if name == "theorem" {
-          env(toctitle: none)[Title][#lorem(10)]
+          env(toctitle: none)[Title][This is an example theorem created using #raw(lang: "typ", "#" + name + "(toctitle: none)[Title][...]").]
         } else if type(env) == function and not "QED" in name and not name.starts-with("_") {
           env(toctitle: none)[Title][#lorem(3)]
         }
