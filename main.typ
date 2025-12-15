@@ -3,7 +3,11 @@
 #import "@preview/tidy:0.4.2"
 #import "tidy-style.typ"
 
-#let example = tidy.styles.default.show-example.with(scope: (theoretic: theoretic,), preamble: "#import theoretic: *\n", scale-preview: 100%)//, dir: ttb)
+#let example = tidy.styles.default.show-example.with(
+  scope: (theoretic: theoretic),
+  preamble: "#import theoretic: *\n",
+  scale-preview: 100%,
+)//, dir: ttb)
 
 #set par(justify: true, linebreaks: "optimized")
 #set text(fill: luma(30), size: 10pt)
@@ -39,11 +43,11 @@
   set par(justify: false)
   let indents = (0pt, 15pt, 37pt)
   let hang-indents = (15pt, 22pt, 54pt)
-  let text-styles = ((weight: 700), (size: 10pt), (size: 9pt, weight: 500), (size: 9pt, fill: luma(20%)), )
-  
+  let text-styles = ((weight: 700), (size: 10pt), (size: 9pt, weight: 500), (size: 9pt, fill: luma(20%)))
+
   let outline-entry = theoretic.toc-entry.with(
-    indent: (level) => { indents.at(level - 1) },
-    hanging-indent: (level) => { hang-indents.at(level - 1) },
+    indent: level => { indents.at(level - 1) },
+    hanging-indent: level => { hang-indents.at(level - 1) },
     fmt-prefix: (prefix, level, _s) => {
       set text(..text-styles.at(level - 1), number-width: "tabular")
       prefix
@@ -63,7 +67,7 @@
       set text(..text-styles.at(level - 1), number-width: "tabular")
       box(width: 18pt, align(right, [#page]))
     },
-    above: (level) => {
+    above: level => {
       if level == 1 {
         auto // 12pt
       } else {
@@ -82,40 +86,40 @@
     offset: 0.5pt,
     extent: 1pt,
     evade: false,
-    it
+    it,
   )
 }
 
 #let fn-link(fn) = {
-  link(label("theoretic-" + fn +"()"), raw(lang: "typ", "#theoretic." + fn + "()"))
+  link(label("theoretic-" + fn + "()"), raw(lang: "typ", "#theoretic." + fn + "()"))
 }
 
 = Summary
 
 This package provides opinionated functions to create theorems and similar environments.
 #example(```typ
-  #theorem[This is a theorem.]
-  #proof[
-    Ends with Equation? No Problem:
-    $ norm(x) = sqrt( sum_(k = 1)^d x_k ) . $
-  ]
-  #theorem(<thm:foo>)[Foo][This is a named theorem.]
-  #proof[@thm:foo[-]][
-    - Ends with a list or enum? Easy.
-  ]
-  ```)
+#theorem[This is a theorem.]
+#proof[
+  Ends with Equation? No Problem:
+  $ norm(x) = sqrt( sum_(k = 1)^d x_k ) . $
+]
+#theorem(<thm:foo>)[Foo][This is a named theorem.]
+#proof[@thm:foo[-]][
+  - Ends with a list or enum? Easy.
+]
+```)
 
 == Setup
 Put the following at the top of your document:
 ```typ
-  #import "@preview/theoretic:0.2.0" as theoretic: theorem, proof, qed
-  #show ref: theoretic.show-ref // Otherwise, references won't work.
+#import "@preview/theoretic:0.2.0" as theoretic: theorem, proof, qed
+#show ref: theoretic.show-ref // Otherwise, references won't work.
 
-  // set up your needed presets
-  #let corollary = theorem.with(kind: "corollary", supplement: "Corollary")
-  #let example = theorem.with(kind: "example", supplement: "Example", number: none)
-  // ..etc
-  ```
+// set up your needed presets
+#let corollary = theorem.with(kind: "corollary", supplement: "Corollary")
+#let example = theorem.with(kind: "example", supplement: "Example", number: none)
+// ..etc
+```
 
 See #fn-link("theorem") (#ref(label("theoretic-theorem()"))) for a detailed description of customization options.
 
@@ -129,22 +133,22 @@ See #fn-link("theorem") (#ref(label("theoretic-theorem()"))) for a detailed desc
 - Automatic numbering.
   If your headings are numbered, it will use top-level heading numbers as the first component, otherwise it will simply number your theorems starting with Theorem 1.
   #example(```typ
-    #theorem(number: "!!")[
-      Number can be overridden per-theorem.
-    ]
-    #theorem(number: 400)[
-      If a `number` is passed (as opposed to a string or content),
-    ]
-    #theorem[
-      ...subsequent theorems will pick it up.
-    ]
-    ```)
+  #theorem(number: "!!")[
+    Number can be overridden per-theorem.
+  ]
+  #theorem(number: 400)[
+    If a `number` is passed (as opposed to a string or content),
+  ]
+  #theorem[
+    ...subsequent theorems will pick it up.
+  ]
+  ```)
 
 - Flexible References via specific supplements.
   #h(1fr)#box[ → #fn-link("show-ref")]
   #example(```typ
-    @thm:foo vs @thm:foo[-] vs @thm:foo[--] vs @thm:foo[!] vs @thm:foo[!!] vs @thm:foo[!!!] vs @thm:foo[?] vs @thm:foo[Statement]
-    ```)
+  @thm:foo vs @thm:foo[-] vs @thm:foo[--] vs @thm:foo[!] vs @thm:foo[!!] vs @thm:foo[!!!] vs @thm:foo[?] vs @thm:foo[Statement]
+  ```)
 
 - Custom outlines: Outline for headings _and/or_ theorems.
   #h(1fr)#box[ → #fn-link("toc")]
@@ -159,13 +163,13 @@ See #fn-link("theorem") (#ref(label("theoretic-theorem()"))) for a detailed desc
   - Every theorem environment can have a solution, which is shown in a separate section.
   - Solutions section automatically hides itself if there are no solutions to show.
   #example(```typ
-    #theorem(kind: "exercise", supplement: "Exercise", solution: [
-      // no cheating! //
-    >>>  Yay! you found it!
-    ])[
-      Go look for the solution of this exercise at the end of this document.
-    ]
-    ```)
+  #theorem(kind: "exercise", supplement: "Exercise", solution: [
+    // no cheating! //
+  >>>  Yay! you found it!
+  ])[
+    Go look for the solution of this exercise at the end of this document.
+  ]
+  ```)
 
 - Automatic QED placement!
   #h(1fr)#box[ → #fn-link("proof") & #fn-link("qed")]
@@ -226,8 +230,9 @@ See #fn-link("theorem") (#ref(label("theoretic-theorem()"))) for a detailed desc
 #pagebreak(weak: true)
 = Examples
 #theoretic.theorem(
-  kind: "example", supplement: "Example",
-  "A complicated example showing some configuration possibilities"
+  kind: "example",
+  supplement: "Example",
+  "A complicated example showing some configuration possibilities",
 )[
   #example(
     dir: btt,
@@ -273,11 +278,17 @@ See #fn-link("theorem") (#ref(label("theoretic-theorem()"))) for a detailed desc
     ]
     #lorem(20)
     >>> ]
-    ```
+    ```,
   )
 ]
 
-#set page(numbering: (.., i) => { smallcaps("a"); str(i); }, columns: 1)
+#set page(
+  numbering: (.., i) => {
+    smallcaps("a")
+    str(i)
+  },
+  columns: 1,
+)
 #counter(page).update(1)
 #set heading(numbering: "A.1")
 #counter(heading).update(0)
