@@ -4,6 +4,7 @@
 #let show-theorem(it) = {
   let color = it.options.at("color", default: oklch(60%, 0.2, 20deg))
   block(
+    width: 100%,
     stroke: (left: 3pt + color),
     inset: (left: 1em + 3pt, right: if it.variant == "important" { 3pt } else { 0pt }, y: 0.6em),
     outset: (left: -3pt),
@@ -11,6 +12,7 @@
     spacing: 1.2em,
     {
       block(
+        width: 100%,
         above: 0em,
         below: 0.8em,
         sticky: true,
@@ -78,7 +80,7 @@
 #let QED = __.qed
 
 #let proof = __.proof.with(
-    variant: "proof",
+  variant: "proof",
   options: (
     head-punct: [:],
     head-sep: h(0.5em),
