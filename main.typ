@@ -261,8 +261,8 @@ You can start completely fresh:
       + ```typ
       #show ref: theoretic.show-ref
 
-      // simply setting `options.variant` to one of "plain", "remark", "definition" or "important" changes the style:
-      #let theorem = theoretic.theorem.with(supplement: "Theorem", kind: "theorem", options: (variant: "important"))
+      // simply setting `variant` to one of "plain", "remark", "definition" or "important" changes the style:
+      #let theorem = theoretic.theorem.with(supplement: "Theorem", kind: "theorem", variant: "important")
       // you can also set the other style options directly:
       #let lemma = theoretic.theorem.with(
         supplement: "Lemma", kind: "lemma",
@@ -302,7 +302,7 @@ Alternatively, you can also build upon a preset style:
       #theorem[An English theorem.]
 
       // or to add new kinds:
-      #let lession = theorem.with(options: (variant: "plain", hue: 20deg), supplement: "Lession", kind: "lession")
+      #let lession = theorem.with(supplement: "Lession", kind: "lession", options: (hue: 20deg), variant: "plain")
       #lession[Foo][Bar]
       ```.text,
   ),
@@ -330,9 +330,11 @@ For how this can look, I reccomend looking at how the predefined styles are made
   ] else if style-name == "fancy" [
     This style is intended#footnote[It still looks okay in other fonts, but it does not reach full potential. Compare: #h(8pt) #box(width: 6cm, style.lemma(toctitle: none)[Lorem][ipsum.])] for use with a font that supports `stretch: 85%` and `weight: "semibold"`. It is here shown using the font "Besley\*", #link("https://github.com/indestructible-type/Besley/tree/master/fonts/ttf")[which you can download on GitHub].
 
-    This style ignores most `options`, except for `variant` which can be "muted", "remark", "plain", or "important"; and it adds a `hue` option to set the `oklch` hue.
+    This style ignores most `options`, except for a new `hue` option to set the `oklch` hue.
+    The `variant` can be "muted", "remark", "plain", or "important".
   ] else if style-name == "bar" [
-    This style ignores most `options`, except for `head-font`; `variant` which can be "plain" or "important"; and it adds a `color` option.
+    This style ignores most `options`, except for `head-font`, and it adds a `color` option.
+    The `variant` can be "plain" or "important".
   ]
   columns(
     2,

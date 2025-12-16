@@ -5,13 +5,14 @@
   let color = it.options.at("color", default: oklch(60%, 0.2, 20deg))
   block(
     stroke: (left: 3pt + color),
-    inset: (left: 1em + 3pt, right: 0pt, y: 0.6em),
+    inset: (left: 1em + 3pt, right: if it.variant == "important" { 3pt } else { 0pt }, y: 0.6em),
     outset: (left: -3pt),
+    fill: if it.variant == "important" { oklch(95%, 0.02, oklch(color).components().at(2)) },
     spacing: 1.2em,
     {
       block(
         above: 0em,
-        below: 1.2em,
+        below: 0.8em,
         sticky: true,
         {
           text(
@@ -77,8 +78,8 @@
 #let QED = __.qed
 
 #let proof = __.proof.with(
-  options: (
     variant: "proof",
+  options: (
     head-punct: [:],
     head-sep: h(0.5em),
     block-args: (inset: (left: 1em + 3pt, right: 0pt, y: 0pt)),

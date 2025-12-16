@@ -128,11 +128,9 @@
 /// Used to fill the @show-theorem `it.options` with default values.
 /// Note: the output here depends on the chosen `variant`. Variants `plain`, `definition`, `remark` correspond to the respective amsthm styles if combined with the default @show-theorem.
 /// Variant `important` is like `definition`, but with an added border.
-#let _fill-options(options, _defaults: _defaults) = {
-  options.variant = options.at("variant", default: "plain")
-
-  let default = if options.variant in _defaults { options.variant } else { "definition" }
-  if options.variant == "proof" { default = "remark" }
+#let _fill-options(options, variant: "plain", _defaults: _defaults) = {
+  let default = if variant in _defaults { variant } else { "definition" }
+  if variant == "proof" { default = "remark" }
 
   options.head-font = (:.._defaults.at(default).head-font, ..options.at("head-font", default: (:)))
   options.title-font = (:.._defaults.at(default).title-font, ..options.at("title-font", default: (:)))
@@ -154,11 +152,12 @@
   /// - number: content | none
   /// - title: content | none
   /// - body: content
+  /// - variant: str
   /// - options: dictionary
   /// ```
   ///
   /// Note that the suffix is already added to the body at this point.
-  /// 
+  ///
   /// Also, note that the variant is already used when filling the options dictionary with defaults.
   /// For the expected keys of `options`, see @theorem.options
   /// -> dictionary
@@ -183,7 +182,7 @@
             if it.number != none [ #it.number]
           }
           if it.title != none {
-            if it.options.variant == "proof" {
+            if it.variant == "proof" {
               text(..it.options.title-font)[ of #it.title]
             } else {
               text(..it.options.title-font)[ (#it.title)]
@@ -253,7 +252,7 @@
   /// -> function
   show-theorem: show-theorem,
   /// Additional options that are passed to `show-theorem`.
-  /// 
+  ///
   /// The default `show-theorem` expects the following keys:
   /// ```
   /// - head-font: dict     // options for the head text
@@ -263,14 +262,16 @@
   /// - head-punct: content // placed at the end of the head
   /// - head-sep: content   // placed after the head
   /// - link: none | (link target) // The target the head should link to.
-  /// - variant: str
   /// ```
-  /// 
+  ///
   /// If you are using a custom `show-theorem`, you can also add more fields here.
   ///
   /// This will be filled with defaults depending on the `variant`.
   /// -> dictionary
   options: (:),
+  /// This controls the defaults for `options`. It is also passed to `show-theorem`.
+  /// -> str
+  variant: "plain",
   /// Will be called at the end of the theorem if `_thm_needs_qed` hasn't been cleared. (E.g. by @qed)
   /// -> function | none
   fmt-suffix: none,
@@ -419,11 +420,11 @@
         }
       }
     }
-    let options = _fill-options(options)
     [#metadata((body: body, solution: solution, toctitle: toctitle))<_thm>]
     [#metadata((
         show-theorem: show-theorem,
         options: options,
+        variant: variant,
         fmt-suffix: fmt-suffix,
         theorem-kind: kind,
         supplement: supplement,
@@ -438,7 +439,8 @@
       number: number,
       title: title,
       body: _append-qed(body, fmt-suffix),
-      options: options,
+      variant: variant,
+      options: _fill-options(options, variant: variant),
     ))
   }
 }
@@ -448,7 +450,7 @@
 #let proof = (
   // needs to be on next line because otherwise it fails to handle the currying.
   theorem.with(
-    options: (variant: "proof"),
+    variant: "proof",
     fmt-suffix: qed.with(force: false),
     supplement: "Proof",
     kind: "proof",
@@ -497,6 +499,7 @@
     show-theorem: original.show-theorem,
     fmt-suffix: original.fmt-suffix,
     kind: original.theorem-kind,
+    variant: original.variant,
     supplement: original.supplement,
     number: original.number,
     title: original.title,

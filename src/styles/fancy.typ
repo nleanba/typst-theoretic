@@ -16,7 +16,7 @@
 /// - hue: (angle)
 #let show-theorem(it) = {
   let hue = it.options.at("hue", default: 0deg)
-  let stroke = if it.options.variant == "muted" or it.options.variant == "remark" {
+  let stroke = if it.variant == "muted" or it.variant == "remark" {
     0.5pt + oklch(44.67%, 0, 0deg)
   } else {
     0.5pt + oklch(44.67%, 0.15, hue)
@@ -27,12 +27,12 @@
     outset: (left: 4pt, right: 0pt, y: 4pt),
     {
       box(
-        stroke: (top: if it.options.variant == "important" { stroke }),
+        stroke: (top: if it.variant == "important" { stroke }),
         outset: (left: 4pt, right: if it.title != none { 1pt } else { 4pt }, y: 3.9pt),
         {
           set text(stretch: 85%, weight: "semibold")
-          set text(weight: "regular") if it.options.variant == "remark"
-          set text(weight: "regular", fill: luma(40%)) if it.options.variant == "muted"
+          set text(weight: "regular") if it.variant == "remark"
+          set text(weight: "regular", fill: luma(40%)) if it.variant == "muted"
           it.supplement
           if it.number != none [ #it.number]
         },
@@ -44,49 +44,53 @@
       }
       h(1em)
       set text(style: "normal", weight: "regular")
-      set text(style: "italic") if it.options.variant == "remark"
-      set text(fill: luma(40%)) if it.options.variant == "muted"
+      set text(style: "italic") if it.variant == "remark"
+      set text(fill: luma(40%)) if it.variant == "muted"
       it.body
     },
   )
 }
 
-#let theorem = __.theorem.with(show-theorem: show-theorem, options: (variant: "important", hue: 307.4deg))
+#let theorem = __.theorem.with(show-theorem: show-theorem, variant: "important", options: (hue: 307.4deg))
 #let proposition = theorem.with(
-  options: (variant: "important", hue: 255.8deg),
+  variant: "important",
+  options: (hue: 255.8deg),
   supplement: "Proposition",
   kind: "proposition",
 )
-#let lemma = theorem.with(options: (variant: "important", hue: 255.8deg), supplement: "Lemma", kind: "lemma")
+#let lemma = theorem.with(variant: "important", options: (hue: 255.8deg), supplement: "Lemma", kind: "lemma")
 #let corollary = theorem.with(
-  options: (variant: "important", hue: 255.8deg),
+  variant: "important",
+  options: (hue: 255.8deg),
   supplement: "Corollary",
   kind: "corollary",
 )
 #let algorithm = theorem.with(
-  options: (variant: "important", hue: 142.5deg),
+  variant: "important",
+  options: (hue: 142.5deg),
   supplement: "Algorithm",
   kind: "algorithm",
 )
-#let axiom = theorem.with(options: (variant: "important", hue: 142.5deg), supplement: "Axiom", kind: "axiom")
+#let axiom = theorem.with(variant: "important", options: (hue: 142.5deg), supplement: "Axiom", kind: "axiom")
 
 #let definiton = theorem.with(
-  options: (variant: "important", hue: 142.5deg),
+  variant: "important",
+  options: (hue: 142.5deg),
   supplement: "Definition",
   kind: "definiton",
 )
-#let exercise = theorem.with(options: (variant: "plain", hue: 1deg), supplement: "Exercise", kind: "exercise")
+#let exercise = theorem.with(variant: "plain", options: (hue: 1deg), supplement: "Exercise", kind: "exercise")
 
 #let example = theorem.with(
-  options: (variant: "muted"),
+  variant: "muted",
   supplement: "Example",
   kind: "example",
 )
 #let counter-example = example.with(supplement: "Counter-Example")
 
-#let remark = theorem.with(options: (variant: "remark"), supplement: "Remark", kind: "remark", number: none)
-#let note = theorem.with(options: (variant: "remark"), supplement: "Note", kind: "note", number: none)
-#let claim = theorem.with(options: (variant: "plain", hue: 50deg), supplement: "Claim", kind: "claim", number: none)
+#let remark = theorem.with(variant: "remark", supplement: "Remark", kind: "remark", number: none)
+#let note = theorem.with(variant: "remark", supplement: "Note", kind: "note", number: none)
+#let claim = theorem.with(variant: "plain", options: (hue: 50deg), supplement: "Claim", kind: "claim", number: none)
 
 #let proof = __.proof
 
