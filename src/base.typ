@@ -128,7 +128,7 @@
 /// Used to fill the @show-theorem `it.options` with default values.
 /// Note: the output here depends on the chosen `variant`. Variants `plain`, `definition`, `remark` correspond to the respective amsthm styles if combined with the default @show-theorem.
 /// Variant `important` is like `definition`, but with an added border.
-#let _fill-options(options) = {
+#let _fill-options(options, _defaults: _defaults) = {
   options.variant = options.at("variant", default: "plain")
 
   let default = if options.variant in _defaults { options.variant } else { "definition" }
@@ -446,7 +446,7 @@
 /// This is simply @theorem with different options.
 /// -> function
 #let proof = (
-  // needs to be on next line becasue otherwise it fails to handle the currying.
+  // needs to be on next line because otherwise it fails to handle the currying.
   theorem.with(
     options: (variant: "proof"),
     fmt-suffix: qed.with(force: false),

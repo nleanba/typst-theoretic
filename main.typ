@@ -250,30 +250,89 @@ This package provides opinionated functions to create theorems and similar envir
 
 For basic customization, you can override the `supplement`, `kind`, and `options` parameters of #fn-link("theorem").
 
-#code-example(```typ
-// TODO
-```)
+You can start completely fresh:
+#code-example(
+  dir: ttb,
+  raw(
+    lang: "typ",
+    "<<<#import \"@preview/theoretic:"
+      + VERSION
+      + "\"\n"
+      + ```typ
+      #show ref: theoretic.show-ref
 
+      // simply setting `options.variant` to one of "plain", "remark", "definition" or "important" changes the style:
+      #let theorem = theoretic.theorem.with(supplement: "Theorem", kind: "theorem", options: (variant: "important"))
+      // you can also set the other style options directly:
+      #let lemma = theoretic.theorem.with(
+        supplement: "Lemma", kind: "lemma",
+        options: (
+          head-font: (style: "normal", weight: "bold"),
+          title-font: (style: "italic", weight: "regular", fill: oklch(40%, 0.2, 12deg)),
+          body-font: (style: "normal", weight: "regular"),
+          block-args: (outset: 4pt, fill: oklch(95%, 0.06, 12deg)),
+          head-punct: none,
+          head-sep: h(1em),
+        ),
+      )
+
+      #lorem(5)
+      #theorem[#lorem(5)]
+      #lemma[Title][#lorem(5)]
+      ```.text,
+  ),
+)
+
+See #link(label("theoretic-theorem.options"))[the documentation in the appendix] for more details on the `options` parameter.
+
+Alternatively, you can also build upon a preset style:
+#code-example(
+  raw(
+    lang: "typ",
+    "<<<#import \"@preview/theoretic:"
+      + VERSION
+      + "\"\n"
+      + ```typ
+      #import theoretic.presets.fancy: *
+      #show ref: theoretic.show-ref
+
+      // this is immediately useful for translations:
+      #let satz = theorem.with(supplement: "Satz")
+      #satz[Eine deutsche Aussage.]
+      #theorem[An English theorem.]
+
+      // or to add new kinds:
+      #let lession = theorem.with(options: (variant: "plain", hue: 20deg), supplement: "Lession", kind: "lession")
+      #lession[Foo][Bar]
+      ```.text,
+  ),
+)
+
+Note that not all preset styles respect the same options. More details are given in the examples in @presets.
+
+
+If you want to go in a completely new direction, you can also provide your own #link(label("theoretic-theorem.show-theorem"))[`show-theorem`] function to fully control styling.
 For how this can look, I reccomend looking at how the predefined styles are made: #link("https://github.com/nleanba/typst-theoretic/tree/v0.3.0/src/styles")[See the code on GitHub].
 
-// TODO
-
-// #pagebreak(weak: true)
 == Preset Styles <presets>
 
-Use with
-```typ
-#import "lib.typ" as theoretic
-#import theoretic.presets.<name>: *
-```
-
 #for (style-name, style) in dictionary(theoretic.presets) {
-  [== #raw(style-name)]
-  set text(font: "Besley", size: 9pt) if style-name == "fancy"
-  show raw: set text(font: "Iosevka", size: 8.5pt) if style-name == "fancy"
+  [=== Preset "#raw(style-name)"]
+  set text(size: 9pt)
+  set text(font: "Besley", size: 8pt) if style-name == "fancy"
+  show raw: set text(font: "Iosevka", size: 8pt) if style-name == "fancy"
 
-  if style-name == "fancy" [
+  [Use with: #raw(lang: "typ", "#import theoretic.presets." + style-name + ": *")]
+  parbreak()
+
+  if style-name == "basic" [
+    This style uses the built-in #fn-link("show-theorem") and accepts all its `options`.
+  ] else if style-name == "fancy" [
     This style is intended#footnote[It still looks okay in other fonts, but it does not reach full potential. Compare: #h(8pt) #box(width: 6cm, style.lemma(toctitle: none)[Lorem][ipsum.])] for use with a font that supports `stretch: 85%` and `weight: "semibold"`. It is here shown using the font "Besley\*", #link("https://github.com/indestructible-type/Besley/tree/master/fonts/ttf")[which you can download on GitHub].
+
+    This style ignores most `options`, except for `variant` which can be "muted", "remark", "plain", or "important"; and it adds a `hue` option to set the `oklch` hue.
+  ] else if style-name == "bar" [
+    This style ignores most `options`, except for `head-font`; `variant` which can be "plain" or "important"; and it adds a `color` option.
   ]
   columns(
     2,
@@ -281,7 +340,7 @@ Use with
       for (name, env) in dictionary(style) {
         if name == "theorem" {
           env[This is an example theorem created using #raw(lang: "typ", "#" + name + "[...]").]
-        } else if type(env) == function and not "QED" in name and not name.starts-with("_") {
+        } else if type(env) == function and not "QED" in name and not name.starts-with("_") and not "show" in name {
           env[Using #raw(lang: "typ", "#" + name + "[...]").]
         }
       }
@@ -291,7 +350,7 @@ Use with
           env(
             toctitle: none,
           )[Title][This is an example theorem created using #raw(lang: "typ", "#" + name + "(toctitle: none)[Title][...]").]
-        } else if type(env) == function and not "QED" in name and not name.starts-with("_") {
+        } else if type(env) == function and not "QED" in name and not name.starts-with("_") and not "show" in name {
           env(toctitle: none)[Title][#lorem(3)]
         }
       }
