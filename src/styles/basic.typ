@@ -1,52 +1,28 @@
-#import "../base.typ" as tt
+#import "../base.typ" as __
 // if you write your own style, import "@preview/theoretic:.." here instead.
 
-#let _fmt = (
-  fmt-prefix: (supplement, number, title) => {
-    strong({
-      supplement
-      if number != none [ #number]
-      if title != none [ (#title)]
-      [.]
-      h(0.6em)
-    })
-  },
-  fmt-body: tt.fmt-body,
-  fmt-suffix: none,
-  block-args: none,
-)
+// Uses built-in defaults.
 
-#let theorem = tt.theorem.with(.._fmt, supplement: "Theorem", kind: "theorem")
-#let proposition = tt.theorem.with(.._fmt, supplement: "Proposition", kind: "proposition")
-#let lemma = tt.theorem.with(.._fmt, supplement: "Lemma", kind: "lemma")
-#let corollary = tt.theorem.with(.._fmt, supplement: "Corollary", kind: "corollary")
-#let definiton = tt.theorem.with(.._fmt, supplement: "Definition", kind: "definiton")
-#let exercise = tt.theorem.with(.._fmt, supplement: "Exercise", kind: "exercise")
-#let algorithm = tt.theorem.with(.._fmt, supplement: "Algorithm", kind: "algorithm")
-#let axiom = tt.theorem.with(.._fmt, supplement: "Axiom", kind: "axiom")
+#let theorem = __.theorem.with()
+#let proposition = theorem.with(supplement: "Proposition", kind: "proposition")
+#let lemma = theorem.with(supplement: "Lemma", kind: "lemma")
+#let corollary = theorem.with(supplement: "Corollary", kind: "corollary")
+#let algorithm = theorem.with(supplement: "Algorithm", kind: "algorithm")
+#let axiom = theorem.with(supplement: "Axiom", kind: "axiom")
 
-#let example = tt.theorem.with(.._fmt, supplement: "Example", kind: "example", number: none)
-#let counter-example = tt.theorem.with(.._fmt, supplement: "Counter-Example", kind: "example", number: none)
-#let remark = tt.theorem.with(.._fmt, supplement: "Remark", kind: "remark", number: none)
-#let note = tt.theorem.with(.._fmt, supplement: "Note", kind: "note", number: none)
-#let claim = tt.theorem.with(.._fmt, supplement: "Claim", kind: "claim", number: none)
+#let definiton = theorem.with(options: (variant: "definition"), supplement: "Definition", kind: "definiton")
+#let exercise = theorem.with(options: (variant: "definition"), supplement: "Exercise", kind: "exercise")
 
-#let QED = tt.qed.with(suffix: sym.qed)
-
-#let proof = tt.proof.with(
-  fmt-prefix: (supplement, number, title) => {
-    emph({
-      supplement
-      if number != none [ #number]
-      if title != none [ of #title]
-      [.]
-      h(0.6em)
-    })
-  },
-  fmt-body: _fmt.fmt-body,
-  fmt-suffix: QED.with(force: false),
-  block-args: none,
-  supplement: "Proof",
-  kind: "proof",
+#let example = theorem.with(
+  options: (variant: "definition"),
+  supplement: "Example",
+  kind: "example",
   number: none,
 )
+#let counter-example = example.with(supplement: "Counter-Example")
+
+#let remark = theorem.with(options: (variant: "remark"), supplement: "Remark", kind: "remark", number: none)
+#let note = theorem.with(options: (variant: "remark"), supplement: "Note", kind: "note", number: none)
+#let claim = theorem.with(options: (variant: "remark"), supplement: "Claim", kind: "claim", number: none)
+
+#let proof = __.proof

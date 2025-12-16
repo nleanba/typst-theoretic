@@ -43,7 +43,7 @@
         } else if "default" in info {
           default = traw(": ") + raw(info.default, lang: "typc") + traw(" ")
         }
-        let display-name = if "default" in info { name } else { sym.angle.l + name + sym.angle.r }
+        let display-name = if "default" in info { name } else { sym.chevron.l + name + sym.chevron.r }
         items.push(traw(strong(display-name)) + default + types)
       }
 
@@ -100,7 +100,7 @@
   breakable: style-args.break-param-descriptions,
   layout(size => {
     let title = {
-      let display-name = if show-default { name } else { sym.angle.l + name + sym.angle.r }
+      let display-name = if show-default { name } else { sym.chevron.l + name + sym.chevron.r }
       [#box(heading(level: style-args.first-heading-level + 3, raw(display-name)))#if (
           function-name != none and style-args.enable-cross-references
         ) { label(function-name + "." + name.trim(".")) }]

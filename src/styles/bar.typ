@@ -1,5 +1,5 @@
-#import "../base.typ" as tt
-// if you write your own style, import "@preview/theoretic:.." here instead.
+#import "../base.typ" as __
+// if you write your own style, `#import "@preview/theoretic:.." as __` here instead.
 
 #let _fmt(color: oklch(60%, 0.2, 20deg)) = (
   fmt-prefix: (supplement, number, title) => {
@@ -25,24 +25,38 @@
 )
 
 
-#let theorem = tt.theorem.with(.._fmt(color: oklch(60%, 0.2, 20deg)), supplement: "Theorem", kind: "theorem")
-#let proposition = tt.theorem.with(.._fmt(color: oklch(60%, 0.15, 265deg)), supplement: "Proposition", kind: "proposition")
-#let lemma = tt.theorem.with(.._fmt(color: oklch(60%, 0.1, 175deg)), supplement: "Lemma", kind: "lemma")
-#let corollary = tt.theorem.with(.._fmt(color: oklch(60%, 0.2, 323deg)), supplement: "Corollary", kind: "corollary")
-#let definiton = tt.theorem.with(.._fmt(color: oklch(65%, 0.15, 52deg)), supplement: "Definition", kind: "definiton")
-#let exercise = tt.theorem.with(.._fmt(color: oklch(65%, 0.15, 250deg)), supplement: "Exercise", kind: "exercise")
-#let algorithm = tt.theorem.with(.._fmt(color: oklch(50%, 0.15, 310deg)), supplement: "Algorithm", kind: "algorithm")
-#let axiom = tt.theorem.with(.._fmt(color: oklch(65%, 0.1, 235deg)), supplement: "Axiom", kind: "axiom")
+#let theorem = __.theorem.with(.._fmt(color: oklch(60%, 0.2, 20deg)), supplement: "Theorem", kind: "theorem")
+#let proposition = __.theorem.with(
+  .._fmt(color: oklch(60%, 0.15, 265deg)),
+  supplement: "Proposition",
+  kind: "proposition",
+)
+#let lemma = __.theorem.with(.._fmt(color: oklch(60%, 0.1, 175deg)), supplement: "Lemma", kind: "lemma")
+#let corollary = __.theorem.with(.._fmt(color: oklch(60%, 0.2, 323deg)), supplement: "Corollary", kind: "corollary")
+#let definiton = __.theorem.with(.._fmt(color: oklch(65%, 0.15, 52deg)), supplement: "Definition", kind: "definiton")
+#let exercise = __.theorem.with(.._fmt(color: oklch(65%, 0.15, 250deg)), supplement: "Exercise", kind: "exercise")
+#let algorithm = __.theorem.with(.._fmt(color: oklch(50%, 0.15, 310deg)), supplement: "Algorithm", kind: "algorithm")
+#let axiom = __.theorem.with(.._fmt(color: oklch(65%, 0.1, 235deg)), supplement: "Axiom", kind: "axiom")
 
-#let example = tt.theorem.with(.._fmt(color: oklch(65%, 0.15, 131deg)), supplement: "Example", kind: "example", number: none)
-#let counter-example = tt.theorem.with(.._fmt(color: oklch(65%, 0.15, 131deg)), supplement: "Counter-Example", kind: "example", number: none)
-#let remark = tt.theorem.with(.._fmt(color: oklch(65%, 0, 0deg)), supplement: "Remark", kind: "remark", number: none)
-#let note = tt.theorem.with(.._fmt(color: oklch(60%, 0.1, 195deg)), supplement: "Note", kind: "note", number: none)
-#let claim = tt.theorem.with(.._fmt(color: oklch(60%, 0.15, 145deg)), supplement: "Claim", kind: "claim", number: none)
+#let example = __.theorem.with(
+  .._fmt(color: oklch(65%, 0.15, 131deg)),
+  supplement: "Example",
+  kind: "example",
+  number: none,
+)
+#let counter-example = __.theorem.with(
+  .._fmt(color: oklch(65%, 0.15, 131deg)),
+  supplement: "Counter-Example",
+  kind: "example",
+  number: none,
+)
+#let remark = __.theorem.with(.._fmt(color: oklch(65%, 0, 0deg)), supplement: "Remark", kind: "remark", number: none)
+#let note = __.theorem.with(.._fmt(color: oklch(60%, 0.1, 195deg)), supplement: "Note", kind: "note", number: none)
+#let claim = __.theorem.with(.._fmt(color: oklch(60%, 0.15, 145deg)), supplement: "Claim", kind: "claim", number: none)
 
-#let QED = tt.qed
+#let QED = __.qed
 
-#let proof = tt.proof.with(
+#let proof = __.proof.with(
   fmt-prefix: (supplement, number, title) => {
     emph(
       strong({

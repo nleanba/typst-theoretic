@@ -1,69 +1,11 @@
 /** base package functionality */
 
-/// Function to run at beginning of theorem.
-///
-/// Default value of @theorem.fmt-prefix.
-/// #example(```typ
-/// #fmt-prefix([Theorem], [1.34], none)...
-///
-/// #fmt-prefix([Theorem], [1.34], [Pythagoras])...
-/// ```)
-/// -> content
-#let fmt-prefix(
-  /// -> content
-  supplement,
-  /// -> content | none
-  number,
-  /// -> content | none
-  title,
-) = {
-  emph({
-    supplement
-    if number != none [ #number]
-    if title != none {
-      h(0.5em)
-      [(#title)]
-    }
-    h(1em)
-  })
-}
-
-/// Function to format the body
-///
-/// Default value of @theorem.fmt-body.
-/// -> content
-#let fmt-body(
-  /// Theorem content.
-  /// -> content
-  body,
-  // // enables creating a link/reference to the solution.
-  // // -> location | none
-  /// -> content
-  solution,
-) = {
-  body
-  if solution != none and solution != [] {
-    footnote[#link(<_thm_solutions>)[Solution in Appendix]]
-    // // This causes a document did not converge warning. why?
-    // context {
-    //     let sol = query(<_thm>).filter(m => m.value.body == solution)
-    //     if sol.len() == 1 {
-    //       footnote[#link(sol.first().location())[Solution in Appendix]]
-    //     } else {
-    //       footnote[#link(<_thm_solutions>)[Solution in Appendix (*??*)]]
-    //     }
-    // }
-  }
-  parbreak()
-}
-
 /// -> state(boolean)
 #let _needs_qed = state("_thm_needs_qed", false)
 
 /// Place a QED mark and clear the `_thm_needs_qed` flag, so that the theorem environment itself won't place one.
 ///
-/// See @proof.fmt-suffix.
-/// // Pass this as @theorem.fmt-suffix for proof environments.
+/// Pass this as @theorem.fmt-suffix for proof environments.
 /// -> content
 #let qed(
   /// -> content
@@ -75,7 +17,7 @@
   if force or _needs_qed.get() {
     _needs_qed.update(false)
     box()
-    h(1fr) 
+    h(1fr)
     sym.wj
     box(suffix)
   }
@@ -142,6 +84,120 @@
 /// -> counter
 #let thm-counter = counter("_thm")
 
+/// The default options per variant. "proof" is same as "remark". Unknown variants inherit from "definition".
+/// -> dictionary
+#let _defaults = (
+  plain: (
+    head-font: (style: "normal", weight: "bold"),
+    title-font: (weight: "regular"),
+    body-font: (style: "italic", weight: "regular"),
+    block-args: (width: 100%),
+    head-punct: [.],
+    head-sep: h(0.5em),
+    link: none,
+  ),
+  definition: (
+    head-font: (style: "normal", weight: "bold"),
+    title-font: (weight: "regular"),
+    body-font: (style: "normal", weight: "regular"),
+    block-args: (width: 100%),
+    head-punct: [.],
+    head-sep: h(0.5em),
+    link: none,
+  ),
+  remark: (
+    head-font: (style: "italic", weight: "regular"),
+    title-font: (:),
+    body-font: (style: "normal", weight: "regular"),
+    block-args: (width: 100%),
+    head-punct: [.],
+    head-sep: h(0.5em),
+    link: none,
+  ),
+  important: (
+    head-font: (style: "normal", weight: "bold"),
+    title-font: (weight: "regular"),
+    body-font: (style: "normal", weight: "regular"),
+    block-args: (width: 100%, outset: 4pt, stroke: 0.5pt),
+    head-punct: [.],
+    head-sep: h(0.5em),
+    link: none,
+  ),
+)
+
+/// Used to fill the @show-theorem `it.options` with default values.
+/// Note: the output here depends on the chosen `variant`. Variants `plain`, `definition`, `remark` correspond to the respective amsthm styles if combined with the default @show-theorem.
+/// Variant `important` is like `definition`, but with an added border.
+#let _fill-options(options) = {
+  options.variant = options.at("variant", default: "plain")
+
+  let default = if options.variant in _defaults { options.variant } else { "definition" }
+  if options.variant == "proof" { default = "remark" }
+
+  options.head-font = (:.._defaults.at(default).head-font, ..options.at("head-font", default: (:)))
+  options.title-font = (:.._defaults.at(default).title-font, ..options.at("title-font", default: (:)))
+  options.body-font = (:.._defaults.at(default).body-font, ..options.at("body-font", default: (:)))
+  options.block-args = (:.._defaults.at(default).block-args, ..options.at("block-args", default: (:)))
+
+  options.head-punct = options.at("head-punct", default: _defaults.at(default).head-punct)
+  options.head-sep = options.at("head-sep", default: _defaults.at(default).head-sep)
+  options.link = options.at("link", default: _defaults.at(default).link)
+
+  return options
+}
+
+/// Default "show" function for theorems. Note that in your versions of this, you cannot use `it` to generate the default options, but you can fall back to `theoretic.show.theorem(it)`.
+#let show-theorem(
+  /// A dictionary with keys:
+  /// ```
+  /// - supplement: content
+  /// - number: content | none
+  /// - title: content | none
+  /// - body: content
+  /// - options: dictionary
+  /// ```
+  ///
+  /// Note that the suffix is already added to the body at this point.
+  /// 
+  /// Also, note that the variant is already used when filling the options dictionary with defaults.
+  /// For the expected keys of `options`, see @theorem.options
+  /// -> dictionary
+  it,
+) = {
+  block(
+    ..it.options.block-args,
+    {
+      text(
+        ..it.options.head-font,
+        {
+          if it.options.link != none {
+            link(
+              it.options.link,
+              {
+                it.supplement
+                if it.number != none [ #it.number]
+              },
+            )
+          } else {
+            it.supplement
+            if it.number != none [ #it.number]
+          }
+          if it.title != none {
+            if it.options.variant == "proof" {
+              text(..it.options.title-font)[ of #it.title]
+            } else {
+              text(..it.options.title-font)[ (#it.title)]
+            }
+          }
+          it.options.head-punct
+        },
+      )
+      it.options.head-sep
+      text(..it.options.body-font, it.body)
+    },
+  )
+}
+
 /// Theorem Environment
 ///
 /// #example(```typ
@@ -192,18 +248,32 @@
 ///
 /// -> content
 #let theorem(
-  /// // Default: @fmt-prefix.
+  /// This function is used to show the actual theorem.
+  /// I recommend looking at the code and documentation for the default @show-theorem to see how this would look.
   /// -> function
-  fmt-prefix: fmt-prefix,
-  /// // Default: @fmt-body.
-  /// -> function
-  fmt-body: fmt-body,
+  show-theorem: show-theorem,
+  /// Additional options that are passed to `show-theorem`.
+  /// 
+  /// The default `show-theorem` expects the following keys:
+  /// ```
+  /// - head-font: dict     // options for the head text
+  /// - title-font: dict    // title is placed inside the head
+  /// - body-font: dict     // options for the body text
+  /// - block-args: dict    // options for the block
+  /// - head-punct: content // placed at the end of the head
+  /// - head-sep: content   // placed after the head
+  /// - link: none | (link target) // The target the head should link to.
+  /// - variant: str
+  /// ```
+  /// 
+  /// If you are using a custom `show-theorem`, you can also add more fields here.
+  ///
+  /// This will be filled with defaults depending on the `variant`.
+  /// -> dictionary
+  options: (:),
   /// Will be called at the end of the theorem if `_thm_needs_qed` hasn't been cleared. (E.g. by @qed)
   /// -> function | none
   fmt-suffix: none,
-  /// Arguments to pass to the ```typ #block[]``` containing the theorem.
-  /// -> dict
-  block-args: (:),
   /// Used for filtering e.g. when creating table of theorems.
   /// -> string
   kind: "theorem",
@@ -333,49 +403,58 @@
   if type(number) == int {
     thm-counter.update(number)
   }
-  block(
-    width: 100%,
-    ..block-args,
-    {
-      context {
-        let thmnr = thm-counter.display("1")
-        let number = number
-        if number == auto or type(number) == int {
-          if heading.numbering == none {
-            number = thmnr
-          } else {
-            let h = counter(heading).get().first()
-            let h_fmt = numbering(heading.numbering, h).trim(".", at: end)
-            number = {
-              h_fmt
-              "."
-              thmnr
-            }
-          }
+  context {
+    let thmnr = thm-counter.display("1")
+    let number = number
+    if number == auto or type(number) == int {
+      if heading.numbering == none {
+        number = thmnr
+      } else {
+        let h = counter(heading).get().first()
+        let h_fmt = numbering(heading.numbering, h).trim(".", at: end)
+        number = {
+          h_fmt
+          "."
+          thmnr
         }
-        [#metadata((body: body, solution: solution, toctitle: toctitle))<_thm>]
-        [#metadata((
-            args: (block-args: block-args, fmt-body: fmt-body, fmt-prefix: fmt-prefix, fmt-suffix: fmt-suffix),
-            theorem-kind: kind,
-            supplement: supplement,
-            number: number,
-            title: title,
-          ))#label]
-
-        fmt-prefix(supplement, number, title)
-        h(0pt, weak: true)
-        _needs_qed.update(true)
-
-        let _body = _append-qed(body, fmt-suffix)
-
-        fmt-body(_body, solution)
-        // if fmt-suffix != none {
-        //   fmt-suffix()
-        // }
       }
-    },
-  )
+    }
+    let options = _fill-options(options)
+    [#metadata((body: body, solution: solution, toctitle: toctitle))<_thm>]
+    [#metadata((
+        show-theorem: show-theorem,
+        options: options,
+        fmt-suffix: fmt-suffix,
+        theorem-kind: kind,
+        supplement: supplement,
+        number: number,
+        title: title,
+      ))#label]
+
+    _needs_qed.update(true)
+
+    show-theorem((
+      supplement: supplement,
+      number: number,
+      title: title,
+      body: _append-qed(body, fmt-suffix),
+      options: options,
+    ))
+  }
 }
+
+/// This is simply @theorem with different options.
+/// -> function
+#let proof = (
+  // needs to be on next line becasue otherwise it fails to handle the currying.
+  theorem.with(
+    options: (variant: "proof"),
+    fmt-suffix: qed.with(force: false),
+    supplement: "Proof",
+    kind: "proof",
+    number: none,
+  )
+)
 
 /// Re-state a theorem.
 ///
@@ -386,13 +465,15 @@
 /// #let proposition = theorem.with(
 ///   kind: "proposition",
 ///   supplement: "Proposition",
-///   fmt-prefix: (s,n,t) => smallcaps({ s ; if n != none [ #n]; if t != none [ (#t)]; h(1em) })
+///   options: (
+///     head-font: (fill: blue),
+///   )
 /// )
 /// #proposition(<funky>)[Funky!][Blah _blah_ blah.]
 /// Restated:
 /// #restate("funky")
-/// Restated with customizations:
-/// #restate(<funky>, fmt-body: (b, s) => text(red, {b; s}))
+/// Restated with added customizations:
+/// #restate(<funky>, options: (body-font: (fill: red)))
 /// ```, scale-preview: 100%);
 /// -> content
 #let restate(
@@ -401,7 +482,7 @@
   label,
   /// Override arguments for the theorem function.
   ///
-  /// (Setting body, solution, kind, supplement, number, title or toctitle here is not recommended.)
+  /// (I don’t recommend changing anything here except possibly `show-theorem` and `options`.)
   ..args,
 ) = context {
   let label = label
@@ -410,74 +491,20 @@
   if original.len() != 1 { panic("Cannot restate non-unique or non-existent label.") }
   original = original.first()
   let base = query(selector(metadata).before(original.location(), inclusive: false)).last().value
-  let fmt-prefix = args.named().at("fmt-prefix", default: original.value.args.fmt-prefix)
+  original = original.value
+  let options = (..original.options, ..args.named().at("options", default: (:)), link: label)
   theorem(
-    ..original.value.args,
-    original.value.title,
+    show-theorem: original.show-theorem,
+    fmt-suffix: original.fmt-suffix,
+    kind: original.theorem-kind,
+    supplement: original.supplement,
+    number: original.number,
+    title: original.title,
     base.body,
-    kind: original.value.theorem-kind,
-    supplement: original.value.supplement,
-    number: original.value.number,
     toctitle: none,
-    ..args,
-    fmt-prefix: (..a) => link(label, fmt-prefix(..a)),
+    ..args, // spread before options in case args.options is set
+    options: options,
   )
-}
-
-/// Function to run at beginning of proof.
-///
-/// Default value of @proof.fmt-prefix.
-/// #example(```typ
-/// #proof-fmt-prefix([Proof], none, none)...
-///
-/// #proof-fmt-prefix([Proof], none, [@pythagoras])...
-/// ```)
-/// -> content
-#let proof-fmt-prefix(
-  /// -> content
-  supplement,
-  /// -> content | none
-  number,
-  /// -> content | none
-  title,
-) = {
-  emph({
-    supplement
-    if number != none [ #number]
-    if title != none [ of #title]
-    [.]
-    h(1em)
-  })
-}
-
-/// This is just @theorem with different defaults.
-///
-/// // ```typc
-/// // theorem.with(kind: "proof", supplement: "Proof", number: none, fmt-prefix: proof-fmt-prefix, fmt-suffix: qed.with(force: false))
-/// // ```
-///
-/// #example(```typ
-/// #proof[#lorem(5)]
-/// #proof[@pythagoras[!]][#lorem(6)]
-/// ```, scale-preview: 100%)
-/// -> content
-#let proof(
-  /// #[]
-  /// -> function
-  fmt-prefix: proof-fmt-prefix,
-  /// #[]
-  /// -> function | none
-  fmt-suffix: qed.with(force: false),
-  /// -> string
-  kind: "proof",
-  /// -> content
-  supplement: "Proof",
-  /// -> auto | none | integer | content
-  number: none,
-  /// -> arguments
-  ..args,
-) = {
-  theorem(kind: kind, supplement: supplement, number: number, fmt-prefix: fmt-prefix, fmt-suffix: fmt-suffix, ..args)
 }
 
 /// Show-rule-function to be able to ```typ @``` labelled theorems.
@@ -670,7 +697,6 @@
         kind: "solution",
         supplement: "Solution",
         number: none,
-        fmt-prefix: proof-fmt-prefix,
         link(sol.location(), target),
         sol.value.solution,
       )

@@ -1,5 +1,5 @@
-#import "../base.typ" as tt
-// if you write your own style, import "@preview/theoretic:.." here instead.
+#import "../base.typ" as __
+// if you write your own style, `#import "@preview/theoretic:.." as __` here instead.
 
 #let _badge(title, hue: 142.5deg) = {
   box(
@@ -52,43 +52,43 @@
   },
 )
 
-#let theorem = tt.theorem.with(.._fmt_strong(hue: 307.4deg), supplement: "Theorem", kind: "theorem")
-#let proposition = tt.theorem.with(.._fmt_strong(hue: 255.8deg), supplement: "Proposition", kind: "proposition")
-#let lemma = tt.theorem.with(.._fmt_strong(hue: 255.8deg), supplement: "Lemma", kind: "lemma")
-#let corollary = tt.theorem.with(.._fmt_strong(hue: 255.8deg), supplement: "Corollary", kind: "corollary")
-#let definiton = tt.theorem.with(.._fmt_strong(hue: 142.5deg), supplement: "Definition", kind: "definiton")
-#let exercise = tt.theorem.with(.._fmt_strong(hue: 1deg), supplement: "Exercise", kind: "exercise")
-#let algorithm = tt.theorem.with(.._fmt_strong(hue: 142.5deg), supplement: "Algorithm", kind: "algorithm")
-#let axiom = tt.theorem.with(.._fmt_strong(hue: 142.5deg), supplement: "Axiom", kind: "axiom")
+#let theorem = __.theorem.with(.._fmt_strong(hue: 307.4deg), supplement: "Theorem", kind: "theorem")
+#let proposition = __.theorem.with(.._fmt_strong(hue: 255.8deg), supplement: "Proposition", kind: "proposition")
+#let lemma = __.theorem.with(.._fmt_strong(hue: 255.8deg), supplement: "Lemma", kind: "lemma")
+#let corollary = __.theorem.with(.._fmt_strong(hue: 255.8deg), supplement: "Corollary", kind: "corollary")
+#let definiton = __.theorem.with(.._fmt_strong(hue: 142.5deg), supplement: "Definition", kind: "definiton")
+#let exercise = __.theorem.with(.._fmt_strong(hue: 1deg), supplement: "Exercise", kind: "exercise")
+#let algorithm = __.theorem.with(.._fmt_strong(hue: 142.5deg), supplement: "Algorithm", kind: "algorithm")
+#let axiom = __.theorem.with(.._fmt_strong(hue: 142.5deg), supplement: "Axiom", kind: "axiom")
 
-#let example = tt.theorem.with(
+#let example = __.theorem.with(
   .._fmt(hue: 0deg),
   fmt-body: (b, s) => {
     set text(fill: oklch(44.67%, 0, 0deg))
-    tt.fmt-body(b, s)
+    __.fmt-body(b, s)
   },
   supplement: "Example",
   kind: "example",
 )
 #let counter-example = example.with(supplement: "Counter-Example")
-#let remark = tt.theorem.with(.._fmt(hue: 0deg), supplement: "Remark", kind: "remark")
-#let note = tt.theorem.with(.._fmt(hue: 0deg), supplement: "Note", kind: "note")
-#let claim = tt.theorem.with(.._fmt(hue: 0deg), supplement: "Claim", kind: "claim")
+#let remark = __.theorem.with(.._fmt(hue: 0deg), supplement: "Remark", kind: "remark")
+#let note = __.theorem.with(.._fmt(hue: 0deg), supplement: "Note", kind: "note")
+#let claim = __.theorem.with(.._fmt(hue: 0deg), supplement: "Claim", kind: "claim")
 
-#let QED = tt.qed.with(
+#let QED = __.qed.with(
   suffix: {
     h(1em)
     $square$
   },
 )
-#let QED-BOLT = tt.qed.with(
+#let QED-BOLT = __.qed.with(
   suffix: {
     h(1em)
     [$limits(square)^arrow.zigzag$]
   },
 )
 
-#let proof = tt.proof.with(
+#let proof = __.proof.with(
   fmt-prefix: (supplement, number, title) => {
     emph({
       supplement

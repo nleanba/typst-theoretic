@@ -1,13 +1,7 @@
 #import "lib.typ" as theoretic
 
-#import "@preview/tidy:0.4.2"
+#import "@preview/tidy:0.4.3"
 #import "tidy-style.typ"
-
-#let example = tidy.styles.default.show-example.with(
-  scope: (theoretic: theoretic),
-  preamble: "#import theoretic: *\n",
-  scale-preview: 100%,
-)//, dir: ttb)
 
 #set par(justify: true, linebreaks: "optimized")
 #set text(fill: luma(30), size: 10pt)
@@ -34,9 +28,25 @@
   block(height: height, content)
 })
 
+#import theoretic.presets.basic: *
 #show ref: theoretic.show-ref
 
-#block(spacing: 30pt)[#text(size: 30pt)[Theoretic]]
+#let code-example = tidy.styles.default.show-example.with(
+  scope: (theoretic: theoretic),
+  // preamble: "#import theoretic.presets.basic: *\n",
+  scale-preview: 100%,
+)//, dir: ttb)
+#let code-example-basic = code-example.with(preamble: "#import theoretic.presets.basic: *\n")
+
+#let VERSION = "0.3.0"
+#set document(
+  author: "nleanba",
+  title: "Theoretic 0.3.0",
+)
+
+#v(2em)
+#title[#text(size: 30pt, weight: "regular")[Theoretic #text(fill: luma(50%), VERSION)]]
+#v(2em)
 
 #heading(outlined: false, numbering: none)[Contents]
 #{
@@ -89,50 +99,76 @@
     it,
   )
 }
+#show ref: it => {
+  if it.has("element") and it.element != none and it.element.func() == heading {
+    underline(
+      stroke: 3pt + oklch(70%, 0, 0deg, 20%),
+      background: true,
+      offset: 0.5pt,
+      extent: 1pt,
+      evade: false,
+      it,
+    )
+  } else { it }
+}
 
 #let fn-link(fn) = {
   link(label("theoretic-" + fn + "()"), raw(lang: "typ", "#theoretic." + fn + "()"))
 }
 
 = Summary
-
 This package provides opinionated functions to create theorems and similar environments.
-#example(```typ
+
+#code-example(
+  raw(
+    lang: "typ",
+    "<<<#import \"@preview/theoretic:"
+      + VERSION
+      + "\"
+#import theoretic.presets.basic: *
+#show ref: theoretic.show-ref
+
 #theorem[This is a theorem.]
 #proof[
-  Ends with Equation? No Problem:
+  This is a proof. A QED symbol is placed correctly even after block equations.
   $ norm(x) = sqrt( sum_(k = 1)^d x_k ) . $
 ]
-#theorem(<thm:foo>)[Foo][This is a named theorem.]
+#proposition(<thm:foo>)[Foo][This is a named theorem.]
 #proof[@thm:foo[-]][
-  - Ends with a list or enum? Easy.
+  Proof with a list or enum?
+  - No problem for QED.
 ]
-```)
+",
+  ),
+)
 
-== Setup
-Put the following at the top of your document:
-```typ
-#import "@preview/theoretic:0.2.0" as theoretic: theorem, proof, qed
-#show ref: theoretic.show-ref // Otherwise, references won't work.
+= Features <features>
 
-// set up your needed presets
-#let corollary = theorem.with(kind: "corollary", supplement: "Corollary")
-#let example = theorem.with(kind: "example", supplement: "Example", number: none)
-// ..etc
-```
+- Except for ```typ #show ref: theoretic.show-ref```, no "setup" is strictly necessary.
 
-See #fn-link("theorem") (#ref(label("theoretic-theorem()"))) for a detailed description of customization options.
+  Customisation of the environments is acheived via parameters on the #fn-link("theorem") function.
+  You can use e.g. ```typ #let lemma = theoretic.theorem.with(kind: "lemma", supplement: "Lemmma", /* ... */)```.
+  #h(1fr)#box[→ See @styling]
 
-= Features
+  For convenience, the ```typc theoretic.presets``` module contains predefined theorem environments.
+  #h(1fr)#box[→ See @presets]
 
-- Except for ```typ #show ref: theoretic.show-ref```, no "setup" is necessary.
-  All configuration is achieved via parameters on the #fn-link("theorem") function.
-  Use ```typc theorem.with(..)``` for your preset needs.
-  #h(1fr)#box[→ #fn-link("theorem")]
+- Flexible References via specific supplements.
+  #h(1fr)#box[ → #fn-link("show-ref")]
+  #code-example(```typ
+  @thm:foo vs @thm:foo[-] vs @thm:foo[--] vs @thm:foo[!] vs @thm:foo[!!] vs @thm:foo[!!!] vs @thm:foo[?] vs @thm:foo[Statement]
+  ```)
+
+- Any theorem can be restated.
+  #h(1fr)#box[ → #fn-link("restate")]
+  #code-example(```typc
+  theoretic.restate(<thm:foo>)
+  // the head links to the original
+  ```)
 
 - Automatic numbering.
   If your headings are numbered, it will use top-level heading numbers as the first component, otherwise it will simply number your theorems starting with Theorem 1.
-  #example(```typ
+  #code-example-basic(```typ
   #theorem(number: "!!")[
     Number can be overridden per-theorem.
   ]
@@ -144,12 +180,6 @@ See #fn-link("theorem") (#ref(label("theoretic-theorem()"))) for a detailed desc
   ]
   ```)
 
-- Flexible References via specific supplements.
-  #h(1fr)#box[ → #fn-link("show-ref")]
-  #example(```typ
-  @thm:foo vs @thm:foo[-] vs @thm:foo[--] vs @thm:foo[!] vs @thm:foo[!!] vs @thm:foo[!!!] vs @thm:foo[?] vs @thm:foo[Statement]
-  ```)
-
 - Custom outlines: Outline for headings _and/or_ theorems.
   #h(1fr)#box[ → #fn-link("toc")]
   - Filter for specific kinds of theorem to create e.g. a list of definitions.
@@ -158,24 +188,12 @@ See #fn-link("theorem") (#ref(label("theoretic-theorem()"))) for a detailed desc
   - Highly customizable! #h(1fr)#box[ → #fn-link("toc-entry")]
     - (And this customization can be reused for regular outlines)#h(1fr)#box[→ #fn-link("show-entry-as")]
 
-- Exercise solutions:
-  #h(1fr)#box[ → #fn-link("solutions")]
-  - Every theorem environment can have a solution, which is shown in a separate section.
-  - Solutions section automatically hides itself if there are no solutions to show.
-  #example(```typ
-  #theorem(kind: "exercise", supplement: "Exercise", solution: [
-    // no cheating! //
-  >>>  Yay! you found it!
-  ])[
-    Go look for the solution of this exercise at the end of this document.
-  ]
-  ```)
-
 - Automatic QED placement!
-  #h(1fr)#box[ → #fn-link("proof") & #fn-link("qed")]
+  #h(1fr)#box[ → #link(label("theoretic-theorem.fmt-suffix"), raw(lang: "typ", "theorem(fmt-suffix: ..)")) & #fn-link("qed")]
+  // TODO: QED stuff
 
   In most cases, it should place the QED symbol appropriately automatically:
-  #example(```typ
+  #code-example-basic(```typ
   #proof[This is a proof. $x=y$]
   #proof[
     This is a proof.
@@ -187,7 +205,7 @@ See #fn-link("theorem") (#ref(label("theoretic-theorem()"))) for a detailed desc
     $ x = y $
   ]
   ```)
-  #example(```typ
+  #code-example-basic(```typ
   #proof[
     This is a proof.
     - #lorem(3)
@@ -213,37 +231,43 @@ See #fn-link("theorem") (#ref(label("theoretic-theorem()"))) for a detailed desc
   ```
   placed directly in front of the equation.
 
-- Any theorem can be restated.
-  #h(1fr)#box[ → #fn-link("restate")]
-  #example(```typc
-  theoretic.restate(<thm:foo>)
-  // the prefix links to the original
+- Exercise solutions:
+  #h(1fr)#box[ → #fn-link("solutions")]
+  - Every theorem environment can have a solution, which is shown in a separate section.
+  - Solutions section automatically hides itself if there are no solutions to show.
+  #code-example-basic(```typ
+  >>> #exercise(solution: [Yay! you found the solutions!])[
+  <<< #exercise(solution: [/***************************/])[
+    Go look for the solution of this exercise at the end of
+    this document.
+  ]
   ```)
-
-
 
 // = Open TODOs
 // - Ability to reference enumerations within theorem ("See Proposition 2.25 (a)")
 
-= Styling
+= Styling / Customization <styling>
 
-In case you are not happy with one of the styled presets, or if you want to add more kinds of theorem -- e.g. for other langauges,
-you can customize the formatting by overriding the `fmt-prefix`, `fmt-body`, `fmt-suffix` and `block-args` parameters.
+For basic customization, you can override the `supplement`, `kind`, and `options` parameters of #fn-link("theorem").
+
+#code-example(```typ
+// TODO
+```)
 
 For how this can look, I reccomend looking at how the predefined styles are made: #link("https://github.com/nleanba/typst-theoretic/tree/v0.3.0/src/styles")[See the code on GitHub].
 
 // TODO
 
-#pagebreak(weak: true)
-= Preset Styles
+// #pagebreak(weak: true)
+== Preset Styles <presets>
 
 Use with
 ```typ
 #import "lib.typ" as theoretic
-#import theoretic.styles.<name>: *
+#import theoretic.presets.<name>: *
 ```
 
-#for (style-name, style) in dictionary(theoretic.styles) {
+#for (style-name, style) in dictionary(theoretic.presets) {
   [== #raw(style-name)]
   set text(font: "Besley", size: 9pt) if style-name == "fancy"
   show raw: set text(font: "Iosevka", size: 8.5pt) if style-name == "fancy"
@@ -264,7 +288,9 @@ Use with
       colbreak()
       for (name, env) in dictionary(style) {
         if name == "theorem" {
-          env(toctitle: none)[Title][This is an example theorem created using #raw(lang: "typ", "#" + name + "(toctitle: none)[Title][...]").]
+          env(
+            toctitle: none,
+          )[Title][This is an example theorem created using #raw(lang: "typ", "#" + name + "(toctitle: none)[Title][...]").]
         } else if type(env) == function and not "QED" in name and not name.starts-with("_") {
           env(toctitle: none)[Title][#lorem(3)]
         }
@@ -294,6 +320,7 @@ Use with
     type: tidy-style.show-type.with(style-args: (colors: tidy.styles.default.colors)),
   ),
   preamble: "#import theoretic: *\n#set heading(outlined: false)\n",
+  enable-curried-functions: false,
 )
 
 #tidy.show-module(
@@ -308,6 +335,7 @@ Use with
   // omit-empty-param-descriptions: true,
   // sort-functions: false,
   break-param-descriptions: true,
+  local-names: (parameters: [Parameters], default: [Default], variables: [Variables]),
 )
 
 #theoretic.solutions()
