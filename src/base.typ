@@ -669,14 +669,20 @@
 }
 
 /// List all solutions, if any.
+/// Should not be used more than once in a document, as this might break links.
 ///
 /// See @_thm_solutions for how it looks.
-/// Currently not customizable, working on it.
 /// -> content
 #let solutions(
-  // Title/heading to use.
+  /// Title/heading to use.
   /// -> content
   title: "Solutions",
+  /// Which theorem function to use for the solutions.
+  /// -> function
+  theorem-function: theorem,
+  /// Supplement to use for the solution theorems. Change this e.g. for localization.
+  /// -> content
+  supplement: "Solution",
 ) = context {
   let sols = query(<_thm>).filter(m => m.value.solution != none and m.value.solution != [])
   if sols.len() > 0 {
@@ -696,9 +702,9 @@
           [#val.supplement]
         }
       }
-      theorem(
+      theorem-function(
         kind: "solution",
-        supplement: "Solution",
+        supplement: supplement,
         number: none,
         link(sol.location(), target),
         sol.value.solution,

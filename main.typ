@@ -302,7 +302,7 @@ Alternatively, you can also build upon a preset style:
       #theorem[An English theorem.]
 
       // or to add new kinds:
-      #let lession = theorem.with(supplement: "Lession", kind: "lession", options: (hue: 20deg), variant: "plain")
+      #let lession = theorem.with(supplement: "Lession", kind: "lession", options: (hue: 12deg), variant: "plain")
       #lession[Foo][Bar]
       <<<#lession(variant: "important")[Important Lesson][...]
       >>>#lession(variant: "important")[Important Lesson][
@@ -340,43 +340,52 @@ For how this can look, I reccomend looking at how the predefined styles are made
   ] else if style-name == "bar" [
     This style ignores most `options`, except for `head-font`, and it adds a `color` option.
     The `variant` can be "plain" or "important".
+    (Not all environments shown.)
   ] else if style-name == "corners" [
-    This style is almost identical to the `basic` one, it just wraps the environments in a block with corners. (Not all environments shown.)
+    This style is almost identical to the `basic` one, it just wraps the environments in a block with corners. It adds a `color` option.
+    (Not all environments shown.)
   ]
-  columns(
-    2,
-    {
-      for (name, env) in dictionary(style) {
-        if name == "theorem" {
-          env[This is an example theorem created using #raw(lang: "typ", "#" + name + "[...]").]
-        } else if (
-          style-name != "corners"
-            and type(env) == function
-            and not "QED" in name
-            and not name.starts-with("_")
-            and not "show" in name
-        ) {
-          env[Using #raw(lang: "typ", "#" + name + "[...]").]
+  if style-name in ("basic", "fancy") {
+    columns(
+      2,
+      {
+        for (name, env) in dictionary(style) {
+          if name == "theorem" {
+            env[This is an example theorem created using #raw(lang: "typ", "#" + name + "[...]").]
+          } else if (
+            type(env) == function and not "QED" in name and not name.starts-with("_") and not "show" in name
+          ) {
+            env[Using #raw(lang: "typ", "#" + name + "[...]").]
+          }
         }
-      }
-      colbreak()
-      for (name, env) in dictionary(style) {
-        if name == "theorem" {
-          env(
-            toctitle: none,
-          )[Title][This is an example theorem created using #raw(lang: "typ", "#" + name + "(toctitle: none)[Title][...]").]
-        } else if (
-          style-name != "corners"
-            and type(env) == function
-            and not "QED" in name
-            and not name.starts-with("_")
-            and not "show" in name
-        ) {
-          env(toctitle: none)[Title][#lorem(3)]
+        colbreak()
+        for (name, env) in dictionary(style) {
+          if name == "theorem" {
+            env(
+              toctitle: none,
+            )[Title][This is an example theorem created using #raw(lang: "typ", "#" + name + "(toctitle: none)[Title][...]").]
+          } else if (
+            type(env) == function and not "QED" in name and not name.starts-with("_") and not "show" in name
+          ) {
+            env(toctitle: none)[Title][#lorem(3)]
+          }
         }
-      }
-    },
-  )
+      },
+    )
+  } else {
+    columns(
+      2,
+      {
+        style.theorem[This is an example theorem created using ```typ #theorem[...]```.]
+        style.lemma[Using ```typ #lemma[...]```.]
+        style.example(options: (color: red))[Using ```typ #example(options: (color: red))[...]```.]
+        colbreak()
+        style.proposition(toctitle: none)[Title][This is an example theorem created using ```typ #proposition(toctitle: none)[Title][...]```.]
+        style.lemma(variant: "important")[Using ```typ #lemma(variant: "important")[...]```.]
+        style.proof[Title][Using ```typ #proof[...][...]```.]
+      },
+    )
+  }
 }
 
 #set page(

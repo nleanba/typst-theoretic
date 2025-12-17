@@ -2,7 +2,9 @@
 // if you write your own style, import "@preview/theoretic:.." here instead.
 
 #let show-theorem(it) = {
+  let color = it.options.at("color", default: black)
   if it.variant == "important" {
+    it.options.block-args = (..it.options.block-args, stroke: 0.5pt + color)
     // don’t bother adding corners if it is framed
     __.show-theorem(it)
   } else {
@@ -15,7 +17,7 @@
           dx: -4pt,
           dy: -4pt,
           curve(
-            stroke: 0.5pt + black,
+            stroke: 0.5pt + color,
             curve.move((1em, 0pt)),
             curve.line((0pt, 0pt)),
             curve.line((0pt, 1em)),
@@ -27,7 +29,7 @@
           dx: 4pt,
           dy: 4pt,
           curve(
-            stroke: 0.5pt + black,
+            stroke: 0.5pt + color,
             curve.move((-1em, 0pt)),
             curve.line((0pt, 0pt)),
             curve.line((0pt, -1em)),
