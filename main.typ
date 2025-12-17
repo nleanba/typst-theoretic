@@ -150,7 +150,7 @@ This package provides opinionated functions to create theorems and similar envir
   You can use e.g. ```typ #let lemma = theoretic.theorem.with(kind: "lemma", supplement: "Lemmma", /* ... */)```.
   #h(1fr)#box[→ See @styling]
 
-  For convenience, the ```typc theoretic.presets``` module contains predefined theorem environments.
+  For convenience, the ```typc theoretic.presets``` module contains predefined styled environments.
   #h(1fr)#box[→ See @presets]
 
 - Flexible References via specific supplements.
@@ -304,6 +304,11 @@ Alternatively, you can also build upon a preset style:
       // or to add new kinds:
       #let lession = theorem.with(supplement: "Lession", kind: "lession", options: (hue: 20deg), variant: "plain")
       #lession[Foo][Bar]
+      <<<#lession(variant: "important")[Important Lesson][...]
+      >>>#lession(variant: "important")[Important Lesson][
+      >>>  The `variant` parameter is also intended to be called for single theorems.
+      >>>  E.g. in this `fancy` preset, `"important"` adds a line above the supplement.
+      >>>]
       ```.text,
   ),
 )
@@ -335,6 +340,8 @@ For how this can look, I reccomend looking at how the predefined styles are made
   ] else if style-name == "bar" [
     This style ignores most `options`, except for `head-font`, and it adds a `color` option.
     The `variant` can be "plain" or "important".
+  ] else if style-name == "corners" [
+    This style is almost identical to the `basic` one, it just wraps the environments in a block with corners. (Not all environments shown.)
   ]
   columns(
     2,
@@ -342,7 +349,13 @@ For how this can look, I reccomend looking at how the predefined styles are made
       for (name, env) in dictionary(style) {
         if name == "theorem" {
           env[This is an example theorem created using #raw(lang: "typ", "#" + name + "[...]").]
-        } else if type(env) == function and not "QED" in name and not name.starts-with("_") and not "show" in name {
+        } else if (
+          style-name != "corners"
+            and type(env) == function
+            and not "QED" in name
+            and not name.starts-with("_")
+            and not "show" in name
+        ) {
           env[Using #raw(lang: "typ", "#" + name + "[...]").]
         }
       }
@@ -352,14 +365,19 @@ For how this can look, I reccomend looking at how the predefined styles are made
           env(
             toctitle: none,
           )[Title][This is an example theorem created using #raw(lang: "typ", "#" + name + "(toctitle: none)[Title][...]").]
-        } else if type(env) == function and not "QED" in name and not name.starts-with("_") and not "show" in name {
+        } else if (
+          style-name != "corners"
+            and type(env) == function
+            and not "QED" in name
+            and not name.starts-with("_")
+            and not "show" in name
+        ) {
           env(toctitle: none)[Title][#lorem(3)]
         }
       }
     },
   )
 }
-
 
 #set page(
   numbering: (.., i) => {

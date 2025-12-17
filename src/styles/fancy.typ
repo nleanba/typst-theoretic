@@ -39,7 +39,7 @@
       )
       if it.title != none {
         h(2pt)
-        _badge(it.title, hue: hue)
+        _badge(it.title, hue: if it.variant == "muted" or it.variant == "remark" { 0deg } else { hue })
         h(-2pt)
       }
       h(1em)
