@@ -20,58 +20,52 @@
   pad(
     left: 10pt,
     {
-      let traw = text.with(font: ("Iosevka Term", "IBM Plex Mono", "DejaVu Sans Mono"), size: 0.85em)
-      // set text(font: ("Iosevka Term", "IBM Plex Mono", "DejaVu Sans Mono"), size: 0.85em)
-      // show raw: set text(size: 1.25em)
+      set text(font: ("Iosevka Term", "IBM Plex Mono", "DejaVu Sans Mono"), size: 0.85em)
       let items = ()
       let args = fn.args
       for (name, info) in fn.args {
         if style-args.omit-private-parameters and name.starts-with("_") {
           continue
         }
-        let default
         let types
         if "types" in info {
-          types = info.types.map(x => show-type(x, style-args: style-args)).join(h(2pt))
-          default = traw(": ")
+          types = ": " + info.types.map(x => show-type(x, style-args: style-args)).join(" ")
         }
         if (
           style-args.enable-cross-references
             and not (info.at("description", default: "") == "" and style-args.omit-empty-param-descriptions)
         ) {
           name = link(label(style-args.label-prefix + fn.name + "." + name.trim(".")), name)
-        } else if "default" in info {
-          default = traw(": ") + raw(info.default, lang: "typc") + traw(" ")
         }
         let display-name = if "default" in info { name } else { sym.chevron.l + name + sym.chevron.r }
-        items.push(traw(strong(display-name)) + default + types)
+        items.push(display-name + types)
       }
 
       layout(size => {
-        let name = traw(fn.name, fill: style-args.colors.at("signature-func-name", default: rgb("#4b69c6")))
-        let params = items.join(traw(", "))
+        let name = text(fn.name, fill: style-args.colors.at("signature-func-name", default: rgb("#4b69c6")))
+        let params = items.join(", ")
         let return-types = if "return-types" in fn and fn.return-types != none {
-          traw(" -> ")
+          " → "
           fn.return-types.map(x => show-type(x, style-args: style-args)).join(" ")
         }
         let x = measure({
           name
-          traw("(")
+          "("
           params
-          traw(")")
+          ")"
           return-types
         }).width
         if x > size.width {
           name
-          traw("(\n  ")
-          items.join(traw(",\n  "))
-          traw("\n)")
+          "(\n  "
+          items.join(",\n  ")
+          "\n)"
           return-types
         } else {
           name
-          traw("(")
+          "("
           params
-          traw(")")
+          ")"
           return-types
         }
       })

@@ -170,9 +170,9 @@ This package provides opinionated functions to create theorems and similar envir
   If your headings are numbered, it will use top-level heading numbers as the first component, otherwise it will simply number your theorems starting with Theorem 1.
   #code-example-basic(```typ
   #theorem(number: "!!")[
-    Number can be overridden per-theorem.
+    Number can be overridden for individual theorems.
   ]
-  #theorem(number: 400)[
+  #theorem(number: 40)[
     If a `number` is passed (as opposed to a string or content),
   ]
   #theorem[
@@ -427,9 +427,11 @@ For how this can look, I reccomend looking at how the predefined styles are made
   // omit-private-parameters: false,
   show-module-name: false,
   // omit-empty-param-descriptions: true,
-  sort-functions: true,
+  sort-functions: auto,
   break-param-descriptions: true,
   local-names: (parameters: [Parameters], default: [Default], variables: [Variables]),
 )
+
+#v(3em)
 
 #theoretic.solutions()

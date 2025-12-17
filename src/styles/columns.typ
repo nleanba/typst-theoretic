@@ -83,4 +83,6 @@
 #let note = theorem.with(variant: "remark", supplement: "Note", kind: "note", number: none)
 #let claim = theorem.with(variant: "remark", supplement: "Claim", kind: "claim", number: none)
 
+#let qed = __.qed
+
 #let proof = __.proof

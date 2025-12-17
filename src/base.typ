@@ -168,7 +168,7 @@
   /// - options: dictionary
   /// ```
   ///
-  /// Note that the suffix is already added to the body at this point.
+  /// Note that the suffix (QED) is already added to the body at this point.
   ///
   /// Also, note that the variant is already used when filling the options dictionary with defaults.
   /// For the expected keys of `options`, see @theorem.options
@@ -225,7 +225,7 @@
 ///   sum of the squares of the remainig sides'
 ///   lengths.
 /// ]
-/// ```, scale-preview: 100%)
+/// ```, scale-preview: 90%)
 ///
 /// /* #example(```typ
 /// >>> #thm-counter.update(0)
@@ -256,7 +256,7 @@
 /// = Heading
 /// #theorem()[Restarted numbering.]
 /// >>> #counter(heading).update((2,8))
-/// ```, scale-preview: 100%) */
+/// ```, scale-preview: 90%) */
 ///
 /// -> content
 #let theorem(
@@ -318,7 +318,7 @@
   /// #corollary(number: 10)[Set number]
   /// #corollary[Continue from set number]
   /// >>> // #counter(heading).update((2,8))
-  /// ```, scale-preview: 100%)
+  /// ```, scale-preview: 90%)
   /// -> auto | none | integer | content
   number: auto,
   /// Title of the Theorem. Usually shown in parentheses after the number.
@@ -334,7 +334,7 @@
   /// If you pass an array, in _sorted_ outlines (@toc.sort) it will be split into multiple entries.
   /// All but the first one are marked as secondary.
   ///
-  /// #example(scale-preview: 100%, ```typ
+  /// #example(scale-preview: 90%, ```typ
   /// #theorem(
   ///   title: [A to Z],
   ///   toctitle: ([AAAAA], [ZZZZZZ])
@@ -356,7 +356,7 @@
   ///
   /// #example(```typ
   /// #theorem(solution: [This will show up wherever `#theoretic.solutions()` is placed.])[#lorem(5)]
-  /// ```, scale-preview: 100%)
+  /// ```, scale-preview: 90%)
   /// -> none | content
   solution: none,
   /// The last positional argument given is used as the theorem body.
@@ -367,7 +367,7 @@
   /// #theorem(<positional>)[Positional][#lorem(4)]
   /// #theorem(label: <named>, title: [Named])[#lorem(4)]
   /// #theorem([Mixed], label: <mixed>)[#lorem(4)]
-  /// ```, scale-preview: 100%)
+  /// ```, scale-preview: 90%)
   /// -> arguments
   ..unnamed-and-body,
 ) = {
@@ -489,7 +489,7 @@
 /// #restate("funky")
 /// Restated with added customizations:
 /// #restate(<funky>, options: (body-font: (fill: red)))
-/// ```, scale-preview: 100%);
+/// ```, scale-preview: 90%);
 /// -> content
 #let restate(
   /// Label of the theorem to restate.
@@ -532,13 +532,13 @@
 /// >>> // #set heading(numbering: "1.1.")
 /// #show ref: theoretic.show-ref
 /// #theorem(label: <fact>, supplement: "Fact")[#lorem(2)]
-/// #theorem(label: <pythagoras>,"Pythagoras")[#lorem(2)]
+/// #theorem(<pythagoras>, "Pythagoras")[#lorem(2)]
 /// #theorem(label: <zl>, title: "Only Named", number: none)[#lorem(2)]
 /// #theorem(label: <y>, number: "Y")[#lorem(2)]
 /// #theorem(label: "5", number: none)[#lorem(2)]
 ///
 /// As a consequence of @fact and @pythagoras[!!]...
-/// ```, scale-preview: 100%)
+/// ```, scale-preview: 90%)
 ///
 /// The reference can be controlled via the supplement passed:
 /// #{
@@ -771,7 +771,7 @@
 /// This is used because since Typst 0.13, it is no longer possible to call outline.entry outside of an actual ourline element, and one "cannot outline metadata".
 ///
 /// This manual uses
-/// //#example(scale-preview: 100%,
+/// //#example(scale-preview: 90%,
 /// #block(radius: 3pt, stroke: .5pt + luma(200), inset: 5pt, width: 100%, {
 /// set text(size: 0.9em)
 /// ```typc
@@ -841,7 +841,7 @@
   /// - If #type("function"), will be called with the level as argument.
   /// - If ```typc auto```, will use the width of the prefix
   ///
-  /// #example(scale-preview: 100%, ```typ
+  /// #example(scale-preview: 90%, ```typ
   /// >>> #show link: it => { show underline: ul => { ul.body }; it }
   /// >>> #context[
   /// #let example-entry = theoretic.toc-entry.with(1, here(), [Section 1.], lorem(6), [0])
@@ -924,12 +924,12 @@
 }
 
 /// Helper function to adapt actual outlines to look the same as those made with @toc.
-/// This is useful if you want to have e.g. a list of figures and a list of definitons adn want them to share their style.
+/// This is useful if you want to have e.g. a list of figures and a list of definitons and want them to share their style.
 ///
 /// Note: Fot typst versions <= 0.12, this function is a bit "hacky" and might not always work.
 /// (It deconstructs the `outline.entry` based on heuristics.)
 ///
-/// #example(dir: ttb, scale-preview: 100%, ```typ
+/// #example(scale-preview: 90%, ```typ
 /// #import theoretic: show-entry-as, toc-entry
 ///
 /// #outline(target: figure, title: [Typst Default])
@@ -998,7 +998,7 @@
 ///    Contents
 ///  ]
 ///  #toc(depth: 1)
-///  ```, scale-preview: 100%)
+///  ```, scale-preview: 90%)
 /// -> content
 #let toc(
   /// Maximum depth of headings to conisder
@@ -1042,7 +1042,7 @@
   ///    sort: true,
   ///    toc-entry: toc-entry.with(hanging-indent: 60pt),
   ///  )
-  ///  ```, scale-preview: 100%)
+  ///  ```, scale-preview: 90%)
   /// -> bool
   sort: false,
 ) = context {

@@ -78,7 +78,7 @@
 #let note = theorem.with(options: (color: oklch(60%, 0.1, 195deg)), supplement: "Note", kind: "note", number: none)
 #let claim = theorem.with(options: (color: oklch(60%, 0.15, 145deg)), supplement: "Claim", kind: "claim", number: none)
 
-#let QED = __.qed
+#let qed = __.qed
 
 #let proof = __.proof.with(
   variant: "proof",
@@ -87,7 +87,7 @@
     head-sep: h(0.5em),
     block-args: (inset: (left: 1em + 3pt, right: 0pt, y: 0pt)),
   ),
-  fmt-suffix: QED.with(force: false),
+  fmt-suffix: qed.with(force: false),
   supplement: "Proof",
   kind: "proof",
   number: none,

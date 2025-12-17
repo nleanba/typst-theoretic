@@ -94,13 +94,13 @@
 
 #let proof = __.proof
 
-#let QED = __.qed.with(
+#let qed = __.qed.with(
   suffix: {
     h(1em)
     $square$
   },
 )
-#let QED-BOLT = __.qed.with(
+#let qed-bolt = __.qed.with(
   suffix: {
     h(1em)
     [$limits(square)^arrow.zigzag$]
@@ -114,7 +114,7 @@
     head-sep: h(1em),
     block-args: (inset: (left: 1em, right: 0pt, y: 0pt)),
   ),
-  fmt-suffix: QED.with(force: false),
+  fmt-suffix: qed.with(force: false),
   supplement: "Proof",
   kind: "proof",
   number: none,
