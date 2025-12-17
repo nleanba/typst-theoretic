@@ -344,6 +344,9 @@ For how this can look, I reccomend looking at how the predefined styles are made
   ] else if style-name == "corners" [
     This style is almost identical to the `basic` one, it just wraps the environments in a block with corners. It adds a `color` option.
     (Not all environments shown.)
+  ] else if style-name == "columns" [
+    This adds the following options: `number-font` and `grid-args`, and it ignores `head-sep`.
+    (Not all environments shown.)
   ]
   if style-name in ("basic", "fancy") {
     columns(
@@ -397,6 +400,9 @@ For how this can look, I reccomend looking at how the predefined styles are made
 )
 #counter(page).update(1)
 #set heading(numbering: "A.1")
+#show heading.where(level: 3): set heading(numbering: none)
+#show heading.where(level: 4): set heading(numbering: none)
+#show heading.where(level: 5): set heading(numbering: none)
 #counter(heading).update(0)
 = Detailed Documentation of all Exported Symbols
 
@@ -421,7 +427,7 @@ For how this can look, I reccomend looking at how the predefined styles are made
   // omit-private-parameters: false,
   show-module-name: false,
   // omit-empty-param-descriptions: true,
-  // sort-functions: false,
+  sort-functions: true,
   break-param-descriptions: true,
   local-names: (parameters: [Parameters], default: [Default], variables: [Variables]),
 )

@@ -2,6 +2,7 @@
 // if you write your own style, import "@preview/theoretic:.." here instead.
 
 #let show-theorem(it) = {
+  it.options = __.fill-options(it.options, variant: it.variant)
   let color = it.options.at("color", default: black)
   if it.variant == "important" {
     it.options.block-args = (..it.options.block-args, stroke: 0.5pt + color)

@@ -84,18 +84,9 @@
 /// -> counter
 #let thm-counter = counter("_thm")
 
-/// The default options per variant. "proof" is same as "remark". Unknown variants inherit from "definition".
+/// The default options per variant. "proof" is same as the last one ("remark"). Unknown variants inherit from the first one ("definition").
 /// -> dictionary
 #let _defaults = (
-  plain: (
-    head-font: (style: "normal", weight: "bold"),
-    title-font: (weight: "regular"),
-    body-font: (style: "italic", weight: "regular"),
-    block-args: (width: 100%, breakable: true),
-    head-punct: [.],
-    head-sep: h(0.5em),
-    link: none,
-  ),
   definition: (
     head-font: (style: "normal", weight: "bold"),
     title-font: (weight: "regular"),
@@ -105,10 +96,10 @@
     head-sep: h(0.5em),
     link: none,
   ),
-  remark: (
-    head-font: (style: "italic", weight: "regular"),
-    title-font: (:),
-    body-font: (style: "normal", weight: "regular"),
+  plain: (
+    head-font: (style: "normal", weight: "bold"),
+    title-font: (weight: "regular"),
+    body-font: (style: "italic", weight: "regular"),
     block-args: (width: 100%, breakable: true),
     head-punct: [.],
     head-sep: h(0.5em),
@@ -123,23 +114,44 @@
     head-sep: h(0.5em),
     link: none,
   ),
+  remark: (
+    head-font: (style: "italic", weight: "regular"),
+    title-font: (:),
+    body-font: (style: "normal", weight: "regular"),
+    block-args: (width: 100%, breakable: true),
+    head-punct: [.],
+    head-sep: h(0.5em),
+    link: none,
+  ),
 )
 
 /// Used to fill the @show-theorem `it.options` with default values.
+///
+/// If you create your own `show-theorem` function, you should make sure to use this or something similar to handle unset options.
+/// 
+/// This function is intended for use _only_ when creating your own style, have a look at the columns style as to how this can be used.
+///
 /// Note: the output here depends on the chosen `variant`. Variants `plain`, `definition`, `remark` correspond to the respective amsthm styles if combined with the default @show-theorem.
 /// Variant `important` is like `definition`, but with an added border.
-#let _fill-options(options, variant: "plain", _defaults: _defaults) = {
-  let default = if variant in _defaults { variant } else { "definition" }
-  if variant == "proof" { default = "remark" }
+#let fill-options(
+  /// -> dictionary
+  options,
+  /// -> str
+  variant: "plain",
+  /// A dictionary containing the default values for each variant. If the variant passed is `proof`, it will fill using the last entry in this dictionary, otherwise if the variant passed is not a key of the dictionary, it will use the first one.
+  /// -> dictionary
+  _defaults: _defaults
+) = {
+  let default = if variant in _defaults { variant } else { _defaults.keys().first() }
+  if variant == "proof" { default = _defaults.keys().last() }
 
-  options.head-font = (:.._defaults.at(default).head-font, ..options.at("head-font", default: (:)))
-  options.title-font = (:.._defaults.at(default).title-font, ..options.at("title-font", default: (:)))
-  options.body-font = (:.._defaults.at(default).body-font, ..options.at("body-font", default: (:)))
-  options.block-args = (:.._defaults.at(default).block-args, ..options.at("block-args", default: (:)))
-
-  options.head-punct = options.at("head-punct", default: _defaults.at(default).head-punct)
-  options.head-sep = options.at("head-sep", default: _defaults.at(default).head-sep)
-  options.link = options.at("link", default: _defaults.at(default).link)
+  for (key, value) in _defaults.at(default) {
+    if type(value) == dictionary {
+      options.insert(key, (:..value, ..options.at(key, default: (:))))
+    } else {
+      options.insert(key, options.at(key, default: value))
+    }
+  }
 
   return options
 }
@@ -163,6 +175,7 @@
   /// -> dictionary
   it,
 ) = {
+  it.options = fill-options(it.options, variant: it.variant)
   block(
     ..it.options.block-args,
     {
@@ -253,7 +266,7 @@
   show-theorem: show-theorem,
   /// Additional options that are passed to `show-theorem`.
   ///
-  /// The default `show-theorem` expects the following keys:
+  /// The default `show-theorem` handles the following keys:
   /// ```
   /// - head-font: dict     // options for the head text
   /// - title-font: dict    // title is placed inside the head
@@ -264,7 +277,7 @@
   /// - link: none | (link target) // The target the head should link to.
   /// ```
   ///
-  /// If you are using a custom `show-theorem`, you can also add more fields here.
+  /// If you are using a custom `show-theorem`, you can also add other fields here.
   ///
   /// This will be filled with defaults depending on the `variant`.
   /// -> dictionary
@@ -440,7 +453,7 @@
       title: title,
       body: _append-qed(body, fmt-suffix),
       variant: variant,
-      options: _fill-options(options, variant: variant),
+      options: options,
     ))
   }
 }

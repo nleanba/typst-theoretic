@@ -2,6 +2,7 @@
 // if you write your own style, `#import "@preview/theoretic:.." as __` here instead.
 
 #let show-theorem(it) = {
+  it.options = __.fill-options(it.options, variant: it.variant)
   let color = it.options.at("color", default: oklch(60%, 0.2, 20deg))
   block(
     width: 100%,
