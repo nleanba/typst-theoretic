@@ -189,7 +189,7 @@ This package provides opinionated functions to create theorems and similar envir
     - (And this customization can be reused for regular outlines)#h(1fr)#box[→ #fn-link("show-entry-as")]
 
 - Automatic QED placement!
-  #h(1fr)#box[ → #link(label("theoretic-theorem.fmt-suffix"), raw(lang: "typ", "theorem(fmt-suffix: ..)")) & #fn-link("qed")]
+  #h(1fr)#box[ → #link(label("theoretic-theorem.suffix"), raw(lang: "typ", "#theorem(suffix: ..)")) & #fn-link("qed")]
   // TODO: QED stuff
 
   In most cases, it should place the QED symbol appropriately automatically:
@@ -356,7 +356,7 @@ For how this can look, I reccomend looking at how the predefined styles are made
           if name == "theorem" {
             env[This is an example theorem created using #raw(lang: "typ", "#" + name + "[...]").]
           } else if (
-            type(env) == function and not "QED" in name and not name.starts-with("_") and not "show" in name
+            type(env) == function and not "qed" in name and not name.starts-with("_") and not "show" in name
           ) {
             env[Using #raw(lang: "typ", "#" + name + "[...]").]
           }
@@ -368,7 +368,7 @@ For how this can look, I reccomend looking at how the predefined styles are made
               toctitle: none,
             )[Title][This is an example theorem created using #raw(lang: "typ", "#" + name + "(toctitle: none)[Title][...]").]
           } else if (
-            type(env) == function and not "QED" in name and not name.starts-with("_") and not "show" in name
+            type(env) == function and not "qed" in name and not name.starts-with("_") and not "show" in name
           ) {
             env(toctitle: none)[Title][#lorem(3)]
           }

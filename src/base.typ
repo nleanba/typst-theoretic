@@ -3,23 +3,61 @@
 /// -> state(boolean)
 #let _needs_qed = state("_thm_needs_qed", false)
 
-/// Place a QED mark and clear the `_thm_needs_qed` flag, so that the theorem environment itself won't place one.
+#let _qeds = state("_thm_qed_stack", ())
+
+/// Place the QED mark last pushed to `state("_thm_qed_stack")` here.
 ///
-/// Pass this as @theorem.fmt-suffix for proof environments.
+/// Will be automatically called by theorems to place their suffix.
+/// You should only need to call this in the rare situation that theoretic cannot place the qed in the correct position automatically.
+/// (If this occurs, please let me know on GitHub or Typst Forum so I can try to fix it.)
+///
+/// #example(scale-preview: 90%, ```typ
+/// #proof[
+///   I want the QED on this line already.#qed()
+///
+///   There will be no QED on this line, even though this is still in the proof.
+/// ]
+/// ```)
+///
 /// -> content
 #let qed(
+  /// Optional.
+  ///
+  /// If provided, will ignore the `state("_thm_qed_stack")` and just place the given symbol here. Us this if you want to call it outside of a @proof or other theorem with suffix.
+  ///
+  /// #example(scale-preview: 90%, ```typ
+  /// This is not inside a proof environment.#qed($triangle$)
+  /// ```)
   /// -> content
-  suffix: sym.qed,
-  /// Whether to place suffix no matter the `_thm_needs_qed` flag.
-  /// -> boolean
-  force: true,
-) = context {
-  if force or _needs_qed.get() {
-    _needs_qed.update(false)
+  symbol,
+) = { }
+#let qed(..args) = {
+  if args.pos().len() == 1 and args.named().len() == 0 {
     box()
     h(1fr)
     sym.wj
-    box(suffix)
+    box(args.pos().first())
+    linebreak()
+  } else if args.pos().len() == 0 and args.named().len() == 0 {
+    context {
+      let qeds = _qeds.get()
+      if qeds.len() > 0 and qeds.last() != none {
+        box()
+        h(1fr)
+        sym.wj
+        box(qeds.last())
+        linebreak()
+      }
+      _qeds.update(old => {
+        if old.len() > 0 {
+          let _ = old.pop()
+          old.push(none)
+        }
+        return old
+      })
+    }
+  } else {
+    panic("unexpected arguments for qed()")
   }
 }
 
@@ -75,7 +113,15 @@
       }
     }
   }
-  return _body
+  return {
+    _body
+    _qeds.update(old => {
+      if old.len() > 0 {
+        old.pop()
+      }
+      return old
+    })
+  }
 }
 
 /// Counts theorems.
@@ -128,7 +174,7 @@
 /// Used to fill the @show-theorem `it.options` with default values.
 ///
 /// If you create your own `show-theorem` function, you should make sure to use this or something similar to handle unset options.
-/// 
+///
 /// This function is intended for use _only_ when creating your own style, have a look at the columns style as to how this can be used.
 ///
 /// Note: the output here depends on the chosen `variant`. Variants `plain`, `definition`, `remark` correspond to the respective amsthm styles if combined with the default @show-theorem.
@@ -140,7 +186,7 @@
   variant: "plain",
   /// A dictionary containing the default values for each variant. If the variant passed is `proof`, it will fill using the last entry in this dictionary, otherwise if the variant passed is not a key of the dictionary, it will use the first one.
   /// -> dictionary
-  _defaults: _defaults
+  _defaults: _defaults,
 ) = {
   let default = if variant in _defaults { variant } else { _defaults.keys().first() }
   if variant == "proof" { default = _defaults.keys().last() }
@@ -285,9 +331,9 @@
   /// This controls the defaults for `options`. It is also passed to `show-theorem`.
   /// -> str
   variant: "plain",
-  /// Will be called at the end of the theorem if `_thm_needs_qed` hasn't been cleared. (E.g. by @qed)
-  /// -> function | none
-  fmt-suffix: none,
+  /// Will be placed at the end of the theorem or where @qed is called.
+  /// -> none | content
+  suffix: none,
   /// Used for filtering e.g. when creating table of theorems.
   /// -> string
   kind: "theorem",
@@ -417,6 +463,10 @@
   if type(number) == int {
     thm-counter.update(number)
   }
+  _qeds.update(old => {
+    old.push(suffix)
+    return old
+  })
   context {
     let thmnr = thm-counter.display("1")
     let number = number
@@ -438,7 +488,7 @@
         show-theorem: show-theorem,
         options: options,
         variant: variant,
-        fmt-suffix: fmt-suffix,
+        suffix: suffix,
         theorem-kind: kind,
         supplement: supplement,
         number: number,
@@ -451,7 +501,7 @@
       supplement: supplement,
       number: number,
       title: title,
-      body: _append-qed(body, fmt-suffix),
+      body: _append-qed(body, qed),
       variant: variant,
       options: options,
     ))
@@ -464,7 +514,7 @@
   // needs to be on next line because otherwise it fails to handle the currying.
   theorem.with(
     variant: "proof",
-    fmt-suffix: qed.with(force: false),
+    suffix: sym.qed,
     supplement: "Proof",
     kind: "proof",
     number: none,
@@ -510,7 +560,7 @@
   let options = (..original.options, ..args.named().at("options", default: (:)), link: label)
   theorem(
     show-theorem: original.show-theorem,
-    fmt-suffix: original.fmt-suffix,
+    suffix: original.suffix,
     kind: original.theorem-kind,
     variant: original.variant,
     supplement: original.supplement,
