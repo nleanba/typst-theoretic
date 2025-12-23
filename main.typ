@@ -16,6 +16,9 @@
 #set page(
   numbering: "1",
   columns: 1,
+  margin: (
+    x: 2cm,
+  ),
   footer: align(center)[#context counter(page).display(page.numbering)], // why is this neccesary? idk???
 )
 
@@ -53,7 +56,7 @@
   set par(justify: false)
   let indents = (0pt, 15pt, 37pt)
   let hang-indents = (15pt, 22pt, 54pt)
-  let text-styles = ((weight: 700), (size: 10pt), (size: 9pt, weight: 500), (size: 9pt, fill: luma(20%)))
+  let text-styles = ((weight: 700, size: 10pt), (size: 10pt), (size: 9pt, weight: 500), (size: 9pt, fill: luma(20%)))
 
   let outline-entry = theoretic.toc-entry.with(
     indent: level => { indents.at(level - 1) },
@@ -79,9 +82,9 @@
     },
     above: level => {
       if level == 1 {
-        auto // 12pt
+        10pt
       } else {
-        7pt
+        5pt
       }
     },
     below: auto,
@@ -148,19 +151,19 @@ This package provides opinionated functions to create theorems and similar envir
 
   Customisation of the environments is acheived via parameters on the #fn-link("theorem") function.
   You can use e.g. ```typ #let lemma = theoretic.theorem.with(kind: "lemma", supplement: "Lemmma", /* ... */)```.
-  #h(1fr)#box[→ See @styling]
+  #qed[→ See @styling]
 
   For convenience, the ```typc theoretic.presets``` module contains predefined styled environments.
-  #h(1fr)#box[→ See @presets]
+  #qed[→ See @presets]
 
 - Flexible References via specific supplements.
-  #h(1fr)#box[ → #fn-link("show-ref")]
+  #qed[ → #fn-link("show-ref")]
   #code-example(```typ
   @thm:foo vs @thm:foo[-] vs @thm:foo[--] vs @thm:foo[!] vs @thm:foo[!!] vs @thm:foo[!!!] vs @thm:foo[?] vs @thm:foo[Statement]
   ```)
 
 - Any theorem can be restated.
-  #h(1fr)#box[ → #fn-link("restate")]
+  #qed[→ #fn-link("restate")]
   #code-example(```typc
   theoretic.restate(<thm:foo>)
   // the head links to the original
@@ -181,15 +184,17 @@ This package provides opinionated functions to create theorems and similar envir
   ```)
 
 - Custom outlines: Outline for headings _and/or_ theorems.
-  #h(1fr)#box[ → #fn-link("toc")]
+  #qed[→ #fn-link("toc")]
   - Filter for specific kinds of theorem to create e.g. a list of definitions.
   - Optionally sorted alphabetically!
   - Theorems can have a different title for outlines (#link(label("theoretic-theorem.toctitle"), raw(lang: "typ", "theorem(toctitle: ..)"))) and can even have multiple entries in a sorted outline.
-  - Highly customizable! #h(1fr)#box[ → #fn-link("toc-entry")]
-    - (And this customization can be reused for regular outlines)#h(1fr)#box[→ #fn-link("show-entry-as")]
+  - Highly customizable!
+    #qed[→ #fn-link("toc-entry")]
+    - (And this customization can be reused for regular outlines)
+      #qed[→ #fn-link("show-entry-as")]
 
 - Automatic QED placement!
-  #h(1fr)#box[ → #link(label("theoretic-theorem.suffix"), raw(lang: "typ", "#theorem(suffix: ..)")) & #fn-link("qed")]
+  #qed[→ #link(label("theoretic-theorem.suffix"), raw(lang: "typ", "#theorem(suffix: ..)")) & #fn-link("qed")]
   // TODO: QED stuff
 
   In most cases, it should place the QED symbol appropriately automatically:
@@ -204,8 +209,6 @@ This package provides opinionated functions to create theorems and similar envir
     This is a proof.
     $ x = y $
   ]
-  ```)
-  #code-example-basic(```typ
   #proof[
     This is a proof.
     - #lorem(3)
@@ -225,14 +228,13 @@ This package provides opinionated functions to create theorems and similar envir
 
   Specifically, it works for lists, enums, and unnumbered block equations, which may be nested.
   If your proof ends wit some other block, you should might want to place a ```typ #qed()``` manually.
-  For proper alignment with a block equation, use
-  ```typ
-  #set math.equation(numbering: (..) => {qed()}, number-align: bottom)
-  ```
-  placed directly in front of the equation.
+
+  If you need to place a qed manually which should be aligned to a block equation,
+  put ```typ #show: qed-in-equation``` before said equation.
+  #qed[→ #fn-link("qed-in-equation")]
 
 - Exercise solutions:
-  #h(1fr)#box[ → #fn-link("solutions")]
+  #qed[→ #fn-link("solutions")]
   - Every theorem environment can have a solution, which is shown in a separate section.
   - Solutions section automatically hides itself if there are no solutions to show.
   #code-example-basic(```typ
@@ -404,7 +406,7 @@ For how this can look, I reccomend looking at how the predefined styles are made
 #show heading.where(level: 4): set heading(numbering: none)
 #show heading.where(level: 5): set heading(numbering: none)
 #counter(heading).update(0)
-= Detailed Documentation of all Exported Symbols
+= Detailed Documentation of the Functions
 
 #let docs = tidy.parse-module(
   read("src/base.typ"),
@@ -427,7 +429,7 @@ For how this can look, I reccomend looking at how the predefined styles are made
   // omit-private-parameters: false,
   show-module-name: false,
   // omit-empty-param-descriptions: true,
-  sort-functions: auto,
+  // sort-functions: auto,
   break-param-descriptions: true,
   local-names: (parameters: [Parameters], default: [Default], variables: [Variables]),
 )

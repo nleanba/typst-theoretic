@@ -33,6 +33,7 @@
 ) = { }
 #let qed(..args) = {
   if args.pos().len() == 1 and args.named().len() == 0 {
+    h(1fr)
     box()
     h(1fr)
     sym.wj
@@ -42,6 +43,7 @@
     context {
       let qeds = _qeds.get()
       if qeds.len() > 0 and qeds.last() != none {
+        h(1fr)
         box()
         h(1fr)
         sym.wj
@@ -59,6 +61,26 @@
   } else {
     panic("unexpected arguments for qed()")
   }
+}
+
+/// Use this to place a QED in the (next) block equation.
+/// Can be called eitehr as with `#show: ` or simply by wrapping the block equation.
+///
+/// #example(scale-preview: 90%, ```typ
+/// #import theoretic: qed-in-equation
+/// #proof[
+///   #show: qed-in-equation
+///   $ x = y $
+///   QED is above this line!
+/// ]
+/// #proof[
+///   #qed-in-equation($ x = y $)
+///   QED is above this line!
+/// ]
+/// ```)
+#let qed-in-equation(rest) = {
+  set math.equation(numbering: (..) => qed(), number-align: bottom)
+  rest
 }
 
 /// Appends the suffix to the body, putting it inside any lists/enums and special casing block equations.
