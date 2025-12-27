@@ -39,16 +39,16 @@ Example Usage:
 
 [Please see the PDF manual for more information][manual], e.g. on how to define your own styles and environments.
 
-### Preset styles:
-
-[![Overview over preset styles][preset-preview]][manual]
-
-
 ## Manual
 
 [Full Manual →][manual]
 
 [![first page of the documentation][manual-preview]][manual]
+
+
+### Preset styles
+
+[![Overview over preset styles][preset-preview]][manual]
 
 ## Feedback
 Do you have questions or need help? [I may be able to help you in the Typst forum, feel free to `@nleanba` to get my attention.](https://forum.typst.app/)
