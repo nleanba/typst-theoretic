@@ -19,7 +19,7 @@
   margin: (
     x: 2cm,
   ),
-  footer: align(center)[#context counter(page).display(page.numbering)], // why is this neccesary? idk???
+  footer: align(center)[#context counter(page).display(page.numbering)], // why is this necessary? idk???
 )
 
 /// Balance columns
@@ -149,7 +149,7 @@ This package provides opinionated functions to create theorems and similar envir
 
 - Except for ```typ #show ref: theoretic.show-ref```, no "setup" is strictly necessary.
 
-  Customisation of the environments is acheived via parameters on the #fn-link("theorem") function.
+  Customisation of the environments is achieved via parameters on the #fn-link("theorem") function.
   You can use e.g. ```typ #let lemma = theoretic.theorem.with(kind: "lemma", supplement: "Lemmma", /* ... */)```.
   #qed[→ See @styling]
 
@@ -160,7 +160,7 @@ This package provides opinionated functions to create theorems and similar envir
   #qed[ → #fn-link("show-ref")]
   #code-example(```typ
   @thm:foo vs @thm:foo[-] vs @thm:foo[--] vs @thm:foo[!] vs @thm:foo[!!] vs @thm:foo[!!!] vs @thm:foo[?] vs @thm:foo[Statement]
-  ```)
+  ```, ratio: 0.6)
 
 - Any theorem can be restated.
   #qed[→ #fn-link("restate")]
@@ -209,7 +209,7 @@ This package provides opinionated functions to create theorems and similar envir
     This is a proof.
     $ x = y $
   ]
-  #proof[
+  #proof(suffix: $smash$)[
     This is a proof.
     - #lorem(3)
   ]
@@ -227,7 +227,7 @@ This package provides opinionated functions to create theorems and similar envir
   ```)
 
   Specifically, it works for lists, enums, and unnumbered block equations, which may be nested.
-  If your proof ends wit some other block, you should might want to place a ```typ #qed()``` manually.
+  If your proof ends with some other block, you should might want to place a ```typ #qed()``` manually.
 
   If you need to place a qed manually which should be aligned to a block equation,
   put ```typ #show: qed-in-equation``` before said equation.
@@ -304,8 +304,8 @@ Alternatively, you can also build upon a preset style:
       #theorem[An English theorem.]
 
       // or to add new kinds:
-      #let lession = theorem.with(supplement: "Lession", kind: "lession", options: (hue: 12deg), variant: "plain")
-      #lession[Foo][Bar]
+      #let lession = theorem.with(supplement: "Lession", kind: "lession", options: (color: yellow), variant: "plain")
+      #lession[Bar]
       <<<#lession(variant: "important")[Important Lesson][...]
       >>>#lession(variant: "important")[Important Lesson][
       >>>  The `variant` parameter is also intended to be called for single theorems.
@@ -319,79 +319,9 @@ Note that not all preset styles respect the same options. More details are given
 
 
 If you want to go in a completely new direction, you can also provide your own #link(label("theoretic-theorem.show-theorem"))[`show-theorem`] function to fully control styling.
-For how this can look, I reccomend looking at how the predefined styles are made: #link("https://github.com/nleanba/typst-theoretic/tree/v0.3.0/src/styles")[See the code on GitHub].
+For how this can look, I recommend looking at how the predefined styles are made: #link("https://github.com/nleanba/typst-theoretic/tree/v0.3.0/src/styles")[See the code on GitHub].
 
-== Preset Styles <presets>
-
-#for (style-name, style) in dictionary(theoretic.presets) {
-  [=== Preset "#raw(style-name)"]
-  set text(size: 9pt)
-  set text(font: "Besley", size: 8pt) if style-name == "fancy"
-  show raw: set text(font: "Iosevka", size: 8pt) if style-name == "fancy"
-
-  [Use with: #raw(lang: "typ", "#import theoretic.presets." + style-name + ": *")]
-  parbreak()
-
-  if style-name == "basic" [
-    This style uses the built-in #fn-link("show-theorem") and accepts all its `options`.
-  ] else if style-name == "fancy" [
-    This style is intended#footnote[It still looks okay in other fonts, but it does not reach full potential. Compare: #h(8pt) #box(width: 6cm, style.lemma(toctitle: none)[Lorem][ipsum.])] for use with a font that supports `stretch: 85%` and `weight: "semibold"`. It is here shown using the font "Besley\*", #link("https://github.com/indestructible-type/Besley/tree/master/fonts/ttf")[which you can download on GitHub].
-
-    This style ignores most `options`, except for a new `hue` option to set the `oklch` hue.
-    The `variant` can be "muted", "remark", "plain", or "important".
-  ] else if style-name == "bar" [
-    This style ignores most `options`, except for `head-font`, and it adds a `color` option.
-    The `variant` can be "plain" or "important".
-    (Not all environments shown.)
-  ] else if style-name == "corners" [
-    This style is almost identical to the `basic` one, it just wraps the environments in a block with corners. It adds a `color` option.
-    (Not all environments shown.)
-  ] else if style-name == "columns" [
-    This adds the following options: `number-font` and `grid-args`, and it ignores `head-sep`.
-    (Not all environments shown.)
-  ]
-  if style-name in ("basic", "fancy") {
-    columns(
-      2,
-      {
-        for (name, env) in dictionary(style) {
-          if name == "theorem" {
-            env[This is an example theorem created using #raw(lang: "typ", "#" + name + "[...]").]
-          } else if (
-            type(env) == function and not "qed" in name and not name.starts-with("_") and not "show" in name
-          ) {
-            env[Using #raw(lang: "typ", "#" + name + "[...]").]
-          }
-        }
-        colbreak()
-        for (name, env) in dictionary(style) {
-          if name == "theorem" {
-            env(
-              toctitle: none,
-            )[Title][This is an example theorem created using #raw(lang: "typ", "#" + name + "(toctitle: none)[Title][...]").]
-          } else if (
-            type(env) == function and not "qed" in name and not name.starts-with("_") and not "show" in name
-          ) {
-            env(toctitle: none)[Title][#lorem(3)]
-          }
-        }
-      },
-    )
-  } else {
-    columns(
-      2,
-      {
-        style.theorem[This is an example theorem created using ```typ #theorem[...]```.]
-        style.lemma[Using ```typ #lemma[...]```.]
-        style.example(options: (color: red))[Using ```typ #example(options: (color: red))[...]```.]
-        colbreak()
-        style.proposition(toctitle: none)[Title][This is an example theorem created using ```typ #proposition(toctitle: none)[Title][...]```.]
-        style.lemma(variant: "important")[Using ```typ #lemma(variant: "important")[...]```.]
-        style.proof[Title][Using ```typ #proof[...][...]```.]
-      },
-    )
-  }
-}
+#include "preset-preview.typ"
 
 #set page(
   numbering: (.., i) => {

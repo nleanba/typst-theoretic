@@ -64,7 +64,7 @@
 }
 
 /// Use this to place a QED in the (next) block equation.
-/// Can be called eitehr as with `#show: ` or simply by wrapping the block equation.
+/// Can be called either as with `#show: ` or simply by wrapping the block equation.
 ///
 /// #example(scale-preview: 90%, ```typ
 /// #import theoretic: qed-in-equation
@@ -148,7 +148,7 @@
 
 /// Counts theorems.
 ///
-/// In most cases, it is not neccesary to reset this manually, it will get updated accordingly if you pass an integer to @theorem.number.
+/// In most cases, it is not necessary to reset this manually, it will get updated accordingly if you pass an integer to @theorem.number.
 /// -> counter
 #let thm-counter = counter("_thm")
 
@@ -225,6 +225,8 @@
 }
 
 /// Default "show" function for theorems. Note that in your versions of this, you cannot use `it` to generate the default options, but you can fall back to `theoretic.show.theorem(it)`.
+/// 
+/// For your own style, make sure to always handle the "link" option, which will be set by @restate and @solutions and contains a link target for the supplement (to link to the original location).
 #let show-theorem(
   /// A dictionary with keys:
   /// ```
@@ -289,8 +291,8 @@
 /// = Heading
 /// #theorem(title: "Pythagoras")[
 ///   Given a right-angled triangle, the length
-///   of the hypothenuse squared is equal to the
-///   sum of the squares of the remainig sides'
+///   of the hypotenuse squared is equal to the
+///   sum of the squares of the remaining sides'
 ///   lengths.
 /// ]
 /// ```, scale-preview: 90%)
@@ -305,8 +307,8 @@
 /// = Heading
 /// #theorem(title: "Pythagoras")[
 ///   Given a right-angled triangle, the length
-///   of the hypothenuse squared is equal to the
-///   sum of the squares of the remainig sides'
+///   of the hypotenuse squared is equal to the
+///   sum of the squares of the remaining sides'
 ///   lengths.
 /// ]
 ///
@@ -354,6 +356,12 @@
   /// -> str
   variant: "plain",
   /// Will be placed at the end of the theorem or where @qed is called.
+  /// #example(```typ
+  /// #theorem(suffix: sym.suit.spade)[...]
+  /// #proof(
+  ///   suffix: $limits(script(square))^arrow.zigzag$,
+  /// )[Proof by contradiction!]
+  /// ```, scale-preview: 90%)
   /// -> none | content
   suffix: none,
   /// Used for filtering e.g. when creating table of theorems.
@@ -996,9 +1004,9 @@
 }
 
 /// Helper function to adapt actual outlines to look the same as those made with @toc.
-/// This is useful if you want to have e.g. a list of figures and a list of definitons and want them to share their style.
+/// This is useful if you want to have e.g. a list of figures and a list of definitions and want them to share their style.
 ///
-/// Note: Fot typst versions <= 0.12, this function is a bit "hacky" and might not always work.
+/// Note: For typst versions <= 0.12, this function is a bit "hacky" and might not always work.
 /// (It deconstructs the `outline.entry` based on heuristics.)
 ///
 /// #example(scale-preview: 90%, ```typ

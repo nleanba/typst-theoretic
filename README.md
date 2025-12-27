@@ -4,46 +4,66 @@
 
 Example Usage:
 ```typ
-  #import "@preview/theoretic:0.2.0" as theoretic: theorem, proof, qed
+  #import "@preview/theoretic:0.3.0"
+  #import theoretic.presets.basic: * // this will automatically load predefined styled environments
+  #show ref: theoretic.show-ref      // this is necessary for references to theorems to work
 
-  // Otherwise, references won't work.
-  #show ref: theoretic.show-ref
+  // Example Usage:
+  #theorem(<label>)[Title][Body]
+  #theorem(label: <label>, title: [Title], [Body]) // this is equivalent to the above
 
-  // set up your needed presets
-  #let corollary = theorem.with(kind: "corollary", supplement: "Corollary")
-  #let example = theorem.with(kind: "example", supplement: "Example", number: none)
+  #proposition(variant: "important")[This proposition has a frame around it!]
+  #proof[...]
+  #example[...]
   // ..etc
 
-  // use
-  #theorem(title: [Important Theorem])[#lorem(5)]
-  #corollary[#lorem(5)]
-  #example[#lorem(5)]
-  // ..etc
 ```
 
 ## Features: Overview
-- No "setup" is necessary.
-  All configuration is achieved via parameters on the `theorem` function.
-- Automatic numbering.
-- Flexible References via specific supplements.
+- It is easy to create single-use variants of environments, as all parameters can be changed on use.
+  (All configuration is achieved via parameters on the `theorem` function, the presets are only preset pramaters.)
+  - There are multiple preset styles available, and it should be easy to add your own.
+- Automatic QED placement!
+  - Even if the proof ends with a list or a block equation, the QED will be perfectly aligned.
+  - Nested proofs are supported.
+  - You can add a suffix (e.g. `∎`) to any environment.
+- Flexible References via specific supplements. E.g. a reference without the title using `@label[-]`; or one with only title and number using `@label[!!]`.
+- Any theorem can be restated.
+- Automatic numbering & ability to use anything as a number. (E.g. "Proposition F")
 - Custom outlines: Outline for headings _and/or_ theorems.
   - Filter for specific kinds of theorem to create e.g. a list of definitions.
   - Optionally sorted alphabetically!
   - Theorems can have a different title for outlines and can even have multiple entries in a sorted outline.
 - Exercise solutions
-- Automatic QED placement!
-- Any theorem can be restated.
 
-Please see the PDF manual for examples and more details.
+
+[Please see the PDF manual for more information][manual], e.g. on how to define your own styles and environments.
+
+### Preset styles:
+
+[![Overview over preset styles][preset-preview]][manual]
+
 
 ## Manual
 
-[![first page of the documentation](https://github.com/nleanba/typst-theoretic/raw/refs/heads/main/preview.svg)](https://github.com/nleanba/typst-theoretic/blob/main/main.pdf)
-[Full Manual →](https://github.com/nleanba/typst-theoretic/blob/main/main.pdf)
+[Full Manual →][manual]
 
-<!-- [Full manual: ![first page of the documentation](https://github.com/nleanba/typst-theoretic/raw/refs/tags/v0.1.1/preview.svg)](https://github.com/nleanba/typst-theoretic/blob/v0.1.1/main.pdf) -->
+[![first page of the documentation][manual-preview]][manual]
 
 ## Feedback
+Do you have questions or need help? [I may be able to help you in the Typst forum, feel free to `@nleanba` to get my attention.](https://forum.typst.app/)
+
 Have you encountered a bug? [Please report it as an issue in my github repository.](https://github.com/nleanba/typst-theoretic/issues)
+<small>(You are also welcome to add feature requests there, but I give no guarantees of implementing them.)</small>
 
 Has this package been useful to you? [I am always happy when someone gives me a ~~sticker~~ star⭐](https://github.com/nleanba/typst-theoretic)
+
+
+
+[manual]: https://github.com/nleanba/typst-theoretic/blob/main/main.pdf?raw=true
+[manual-preview]: https://github.com/nleanba/typst-theoretic/raw/refs/heads/main/preview.svg
+[preset-preview]: https://github.com/nleanba/typst-theoretic/raw/refs/heads/main/preset-preview.svg
+
+<!-- [manual]: https://github.com/nleanba/typst-theoretic/blob/v0.3.0/main.pdf?raw=true
+[manual-preview]: https://github.com/nleanba/typst-theoretic/raw/refs/tags/v0.3.0/preview.svg
+[preset-preview]: https://github.com/nleanba/typst-theoretic/raw/refs/tags/v0.3.0/preset-preview.svg -->

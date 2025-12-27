@@ -1,6 +1,13 @@
 #import "../base.typ" as __
 // if you write your own style, import "@preview/theoretic:.." here instead.
 
+// `_meta` is only used for the documentation, and can be omitted for custom styles.
+#let _meta = (
+  description: [This style is almost identical to the `basic` one, it just wraps the environments in a block with corners. Note the added `color` option.],
+  options: __._defaults.plain.keys() + ("color",),
+  variants: __._defaults.keys() + ("proof",),
+)
+
 #let show-theorem(it) = {
   it.options = __.fill-options(it.options, variant: it.variant)
   let color = it.options.at("color", default: black)
@@ -48,7 +55,7 @@
 #let algorithm = theorem.with(supplement: "Algorithm", kind: "algorithm")
 #let axiom = theorem.with(supplement: "Axiom", kind: "axiom")
 
-#let definiton = theorem.with(variant: "definition", supplement: "Definition", kind: "definiton")
+#let definition = theorem.with(variant: "definition", supplement: "Definition", kind: "definition")
 #let exercise = theorem.with(variant: "definition", supplement: "Exercise", kind: "exercise")
 
 #let example = theorem.with(variant: "definition", supplement: "Example", kind: "example", number: none)
@@ -59,5 +66,6 @@
 #let claim = theorem.with(variant: "remark", supplement: "Claim", kind: "claim", number: none)
 
 #let qed = __.qed
+#let qed-in-equation = __.qed-in-equation
 
 #let proof = __.proof

@@ -1,6 +1,14 @@
 #import "../base.typ" as __
 // if you write your own style, `#import "@preview/theoretic:.." as __` here instead.
 
+
+// `_meta` is only used for the documentation, and can be omitted for custom styles.
+#let _meta = (
+  description: none,
+  options: ("head-font", "link", "color"),
+  variants: ("plain", "important"),
+)
+
 #let show-theorem(it) = {
   it.options = __.fill-options(it.options, variant: it.variant)
   let color = it.options.at("color", default: oklch(60%, 0.2, 20deg))
@@ -61,7 +69,7 @@
 )
 #let lemma = theorem.with(options: (color: oklch(60%, 0.1, 175deg)), supplement: "Lemma", kind: "lemma")
 #let corollary = theorem.with(options: (color: oklch(60%, 0.2, 323deg)), supplement: "Corollary", kind: "corollary")
-#let definiton = theorem.with(options: (color: oklch(65%, 0.15, 52deg)), supplement: "Definition", kind: "definiton")
+#let definition = theorem.with(options: (color: oklch(65%, 0.15, 52deg)), supplement: "Definition", kind: "definition")
 #let exercise = theorem.with(options: (color: oklch(65%, 0.15, 250deg)), supplement: "Exercise", kind: "exercise")
 #let algorithm = theorem.with(options: (color: oklch(50%, 0.15, 310deg)), supplement: "Algorithm", kind: "algorithm")
 #let axiom = theorem.with(options: (color: oklch(65%, 0.1, 235deg)), supplement: "Axiom", kind: "axiom")
@@ -79,6 +87,7 @@
 #let claim = theorem.with(options: (color: oklch(60%, 0.15, 145deg)), supplement: "Claim", kind: "claim", number: none)
 
 #let qed = __.qed
+#let qed-in-equation = __.qed-in-equation
 
 #let proof = __.proof.with(
   variant: "proof",
@@ -87,7 +96,6 @@
     head-sep: h(0.5em),
     block-args: (inset: (left: 1em + 3pt, right: 0pt, y: 0pt)),
   ),
-  fmt-suffix: qed.with(force: false),
   supplement: "Proof",
   kind: "proof",
   number: none,

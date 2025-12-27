@@ -34,30 +34,41 @@
   ),
 )
 
+
+// `_meta` is only used for the documentation, and can be omitted for custom styles.
+#let _meta = (
+  description: none,
+  options: _defaults.plain.keys(),
+  variants: _defaults.keys() + ("proof",),
+)
+
 #let show-theorem(it) = {
   it.options = __.fill-options(it.options, variant: it.variant, _defaults: _defaults)
   block(
     ..it.options.block-args,
     grid(
       ..it.options.grid-args,
-      stack(
-        spacing: 0.5em,
-        text(
-          ..it.options.head-font,
-          {
-            if it.options.link != none {
-              link(
-                it.options.link,
-                it.supplement,
-              )
-            } else {
-              it.supplement
-            }
-            it.options.head-punct
-          },
+      block(
+        breakable: false,
+        stack(
+          spacing: 0.4em,
+          text(
+            ..it.options.head-font,
+            {
+              if it.options.link != none {
+                link(
+                  it.options.link,
+                  it.supplement,
+                )
+              } else {
+                it.supplement
+              }
+              it.options.head-punct
+            },
+          ),
+          if it.number != none { text(..it.options.number-font, it.number) } else { v(0.5em) },
+          if it.title != none { text(..it.options.title-font, style: "italic", it.title) } else { v(0em) },
         ),
-        if it.number != none { text(..it.options.number-font, it.number) } else { v(0em) },
-        if it.title != none { text(..it.options.title-font, style: "italic", it.title) } else { v(0em) },
       ),
       {
         text(..it.options.body-font, it.body)
@@ -73,7 +84,7 @@
 #let algorithm = theorem.with(supplement: "Algorithm", kind: "algorithm")
 #let axiom = theorem.with(supplement: "Axiom", kind: "axiom")
 
-#let definiton = theorem.with(supplement: "Definition", kind: "definiton")
+#let definition = theorem.with(supplement: "Definition", kind: "definition")
 #let exercise = theorem.with(supplement: "Exercise", kind: "exercise")
 
 #let example = theorem.with(supplement: "Example", kind: "example", number: none)
@@ -84,5 +95,6 @@
 #let claim = theorem.with(variant: "remark", supplement: "Claim", kind: "claim", number: none)
 
 #let qed = __.qed
+#let qed-in-equation = __.qed-in-equation
 
 #let proof = __.proof
