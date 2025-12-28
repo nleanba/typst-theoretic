@@ -46,17 +46,18 @@ All preset styles define the following environments:
 
       [
         #style._meta.description
-
-        This style supports the variants
-        #style._meta.variants.map(o => raw(lang: "typc", "\"" + o + "\"")).join([, ], last: [, and ]);;
-        and the options
-        #style._meta.options.map(o => raw(o)).join([, ], last: [, and ]);.
       ]
-      // theorem[][] lemma(important) definition remark example proof
+
       balance(
         columns(
           2,
           {
+            [
+              This style supports the variants
+              #style._meta.variants.map(o => raw(lang: "typc", "\"" + o + "\"")).join([, ], last: [, and ]);;
+              and the options
+              #style._meta.options.map(o => raw(o)).join([, ], last: [, and ]);.
+            ]
             style.theorem(
               toctitle: none,
             )[Title][This is an example theorem created using ```typ #theorem(toctitle: none)[Title][...]```.]

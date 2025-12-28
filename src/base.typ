@@ -1,8 +1,5 @@
 /** base package functionality */
 
-/// -> state(boolean)
-#let _needs_qed = state("_thm_needs_qed", false)
-
 #let _qeds = state("_thm_qed_stack", ())
 
 /// Place the QED mark last pushed to `state("_thm_qed_stack")` here.
@@ -524,8 +521,6 @@
         number: number,
         title: title,
       ))#label]
-
-    _needs_qed.update(true)
 
     show-theorem((
       supplement: supplement,
