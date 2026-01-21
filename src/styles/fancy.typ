@@ -97,7 +97,7 @@
 )
 #let proposition = theorem.with(
   variant: "important",
-  options: (hue: 255.8deg),
+  options: (color: oklch(70%, 0.15, 255.8deg)),
   supplement: "Proposition",
   kind: "proposition",
 )
