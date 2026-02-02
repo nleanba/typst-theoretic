@@ -27,7 +27,7 @@
   /// ```)
   /// -> content
   symbol,
-) = { }
+) = {}
 #let qed(..args) = {
   if args.pos().len() == 1 and args.named().len() == 0 {
     h(1fr)
@@ -443,6 +443,7 @@
   /// #theorem(<positional>)[Positional][#lorem(4)]
   /// #theorem(label: <named>, title: [Named])[#lorem(4)]
   /// #theorem([Mixed], label: <mixed>)[#lorem(4)]
+  /// #theorem(<untitled>)[#lorem(4)]
   /// ```, scale-preview: 90%)
   /// -> arguments
   ..unnamed-and-body,
@@ -452,22 +453,29 @@
 
   let body = unnamed-and-body.pos().last()
 
+  let title-candidates = unnamed-and-body.pos().slice(0, -1).filter(p => type(p) == content or type(p) == str)
+  let label-candidates = unnamed-and-body.pos().slice(0, -1).filter(p => type(p) == std.label)
+
   let title = if title != none {
+    assert(title-candidates.len() == 0, message: "Cannot pass title as named and positional argument at the same time.")
     title
-  } else if unnamed-and-body.pos().len() > 1 {
-    unnamed-and-body.pos().find(p => type(p) == content or type(p) == str)
+  } else if title-candidates.len() >= 1 {
+    assert(title-candidates.len() == 1, message: "Too many positional title arguments")
+    title-candidates.first()
   } else {
     none
   }
 
   let label = if label != none {
+    assert(label-candidates.len() == 0, message: "Cannot pass label as named and positional argument at the same time.")
     if type(label) == std.label {
       label
     } else {
       std.label(label)
     }
-  } else if unnamed-and-body.pos().len() > 1 {
-    unnamed-and-body.pos().find(p => type(p) == std.label)
+  } else if label-candidates.len() >= 1 {
+    assert(label-candidates.len() == 1, message: "Too many positional label arguments")
+    label-candidates.first()
   } else {
     none
   }
