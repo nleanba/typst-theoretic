@@ -90,7 +90,7 @@
 ) = {
   let _body = body
   if fmt-suffix != none {
-    if _body.has("children") {
+    if _body.has("children") and _body.children.len() > 0 {
       let candidate = _body.children.last()
       if candidate == [ ] {
         _body = body.children.slice(0, -1).join()
