@@ -41,10 +41,10 @@
 )//, dir: ttb)
 #let code-example-basic = code-example.with(preamble: "#import theoretic.presets.basic: *\n")
 
-#let VERSION = "0.3.0"
+#let VERSION = "0.3.1"
 #set document(
   author: "nleanba",
-  title: "Theoretic 0.3.0",
+  title: "Theoretic 0.3.1",
 )
 
 #v(2em)
@@ -319,7 +319,7 @@ Note that not all preset styles respect the same options. More details are given
 
 
 If you want to go in a completely new direction, you can also provide your own #link(label("theoretic-theorem.show-theorem"))[`show-theorem`] function to fully control styling.
-For how this can look, I recommend looking at how the predefined styles are made: #link("https://github.com/nleanba/typst-theoretic/tree/v0.3.0/src/styles")[See the code on GitHub].
+For how this can look, I recommend looking at how the predefined styles are made: #link("https://github.com/nleanba/typst-theoretic/tree/v0.3.1/src/styles")[See the code on GitHub].
 
 #include "preset-preview.typ"
 

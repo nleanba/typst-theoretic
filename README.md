@@ -4,7 +4,7 @@
 
 Example Usage:
 ```typ
-  #import "@preview/theoretic:0.3.0"
+  #import "@preview/theoretic:0.3.1"
   #import theoretic.presets.basic: * // this will automatically load predefined styled environments
   #show ref: theoretic.show-ref      // this is necessary for references to theorems to work
 
@@ -64,6 +64,6 @@ Has this package been useful to you? [I am always happy when someone gives me a 
 [manual-preview]: https://github.com/nleanba/typst-theoretic/raw/refs/heads/main/preview.svg
 [preset-preview]: https://github.com/nleanba/typst-theoretic/raw/refs/heads/main/preset-preview.svg
 
-<!-- [manual]: https://github.com/nleanba/typst-theoretic/blob/v0.3.0/main.pdf?raw=true
-[manual-preview]: https://github.com/nleanba/typst-theoretic/raw/refs/tags/v0.3.0/preview.svg
-[preset-preview]: https://github.com/nleanba/typst-theoretic/raw/refs/tags/v0.3.0/preset-preview.svg -->
+<!-- [manual]: https://github.com/nleanba/typst-theoretic/blob/v0.3.1/main.pdf?raw=true
+[manual-preview]: https://github.com/nleanba/typst-theoretic/raw/refs/tags/v0.3.1/preview.svg
+[preset-preview]: https://github.com/nleanba/typst-theoretic/raw/refs/tags/v0.3.1/preset-preview.svg -->
