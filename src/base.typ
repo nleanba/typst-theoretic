@@ -487,8 +487,8 @@
       let prev = query(selector(<_thm_marker>).before(here()))
       if prev.len() != 0 {
         let prev = prev.last()
-        let h = counter(heading).get().first()
-        if counter(heading).at(prev.location()).first() != h {
+        let h = counter(heading).get()
+        if counter(heading).at(prev.location()) != h {
           thm-counter.update(0)
         }
       }
@@ -512,8 +512,8 @@
       if heading.numbering == none {
         number = thmnr
       } else {
-        let h = counter(heading).get().first()
-        let h_fmt = numbering(heading.numbering, h)
+        let h = counter(heading).get()
+        let h_fmt = numbering(heading.numbering, ..h)
         if type(h_fmt) == str {
           h_fmt = h_fmt.trim(".", at: end)
         }
