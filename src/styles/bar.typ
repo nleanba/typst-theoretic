@@ -43,7 +43,7 @@
                 it.supplement
                 if it.number != none [ #it.number]
               }
-              h(1fr)
+              h(1fr) + h(0pt, weak: true)
               if it.title != none {
                 it.title
               }
@@ -93,7 +93,7 @@
   variant: "proof",
   options: (
     head-punct: [:],
-    head-sep: h(0.5em),
+    head-sep: h(0.5em) + h(0pt, weak: true),
     block-args: (inset: (left: 1em + 3pt, right: 0pt, y: 0pt)),
   ),
   supplement: "Proof",

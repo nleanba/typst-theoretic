@@ -161,7 +161,7 @@
     body-font: (style: "normal", weight: "regular"),
     block-args: (width: 100%, breakable: true),
     head-punct: [.],
-    head-sep: h(0.5em),
+    head-sep: h(0.5em) + h(0pt, weak: true),
     link: none,
   ),
   plain: (
@@ -170,7 +170,7 @@
     body-font: (style: "italic", weight: "regular"),
     block-args: (width: 100%, breakable: true),
     head-punct: [.],
-    head-sep: h(0.5em),
+    head-sep: h(0.5em) + h(0pt, weak: true),
     link: none,
   ),
   important: (
@@ -179,7 +179,7 @@
     body-font: (style: "normal", weight: "regular"),
     block-args: (width: 100%, breakable: true, outset: 4pt, stroke: 0.5pt),
     head-punct: [.],
-    head-sep: h(0.5em),
+    head-sep: h(0.5em) + h(0pt, weak: true),
     link: none,
   ),
   remark: (
@@ -188,7 +188,7 @@
     body-font: (style: "normal", weight: "regular"),
     block-args: (width: 100%, breakable: true),
     head-punct: [.],
-    head-sep: h(0.5em),
+    head-sep: h(0.5em) + h(0pt, weak: true),
     link: none,
   ),
 )

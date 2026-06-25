@@ -83,7 +83,7 @@
         _badge(it.title, color: color)
         h(-2pt)
       }
-      h(1em)
+      h(1em) + h(0pt, weak: true)
       set text(..it.options.body-font)
       it.body
     },
@@ -174,7 +174,7 @@
   options: (
     variant: "proof",
     head-punct: [.],
-    head-sep: h(1em),
+    head-sep: h(1em) + h(0pt, weak: true),
     block-args: (inset: (left: 1em, right: 0pt, y: 0pt)),
   ),
   suffix: QED,
