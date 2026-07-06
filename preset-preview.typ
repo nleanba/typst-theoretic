@@ -23,11 +23,11 @@
 == Preset Styles <presets>
 All preset styles define the following environments:
 #(
-  ..for (name, env) in dictionary(theoretic.presets.basic).pairs().sorted() {
+  ..for (name, env) in dictionary(theoretic.presets.basic).pairs().sorted(key: s => s.at(0)) {
     if type(env) == function and not "qed" in name and not name.starts-with("_") and not "show" in name {
       (raw(lang: "typ", "#" + name + "[...]"),)
     }
-  }
+  },
 ).join(", ", last: [, and ]);.
 
 #for (style-name, style) in dictionary(theoretic.presets) {
