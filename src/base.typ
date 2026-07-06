@@ -148,9 +148,28 @@
 
 /// Counts theorems.
 ///
-/// In most cases, it is not necessary to reset this manually, it will get updated accordingly if you pass an integer to @theorem.number.
+/// In most cases, it is not necessary to reset this manually, it will get updated accordingly if you pass an int to @theorem.number.
 /// -> counter
 #let thm-counter = counter("_thm")
+
+#let _thm-config = state("_thm_config", (
+  numbering: "1",
+  numbering-depth: 1,
+))
+/// Allows overriding some of the @theorem parameters.
+///
+/// All parameters correspond to the parameter of the same name of @theorem. Setting it here redefines what ```typc auto``` means for that parameter.
+///
+/// You might want to update @thm-counter to `0` after calling @configure.
+#let configure(
+  /// -> str | function
+  numbering: "1",
+  /// -> int
+  numbering-depth: 1,
+) = {}
+#let configure(..args) = {
+  _thm-config.update(old => (:..old, ..args.named()))
+}
 
 /// The default options per variant. "proof" is same as the last one ("remark"). Unknown variants inherit from the first one ("definition").
 /// -> dictionary
@@ -381,7 +400,7 @@
   /// -> content
   supplement: "Theorem",
   ///- If ```typc auto```, will continue numbering from last numbered theorem.
-  ///- If #type("integer"), it will continue the numbering of later theorems from the given number.
+  ///- If #type("int"), it will continue the numbering of later theorems from the given number.
   ///- If #type("content"), it is shown as-is, with no side-effects.
   ///#example(```typ
   /// >>> // #thm-counter.update(0)
@@ -403,12 +422,18 @@
   /// #corollary[Continue from set number]
   /// >>> // #counter(heading).update((2,8))
   /// ```, scale-preview: 90%)
-  /// -> auto | none | integer | content
+  /// -> auto | none | int | content
   number: auto,
+  /// Numbering to use for the theorem number itself. (May be preceeded by the heading number)
+  ///
+  /// Can be set for all theorems using @configure.
+  /// -> auto | str | function
+  numbering: auto,
   /// How many levels of the heading counter the theorem numbering should inherit. (Ignored if headings are not numbered)
   ///
-  /// Note that this uses the numbering set on ```typc heading()```, which may differ from the numbering for ```typc heading(level: ..)```. Make sure to ```typ #set heading(numbering: ..)``` for the intended result.
+  /// Can be set for all theorems using @configure.
   ///
+  /// Note that this uses the numbering set on ```typc heading()```, which may differ from the numbering for ```typc heading(level: ..)```. Make sure to ```typ #set heading(numbering: ..)``` for the intended result.
   /// Note that changing the `numbering-depth` does not automatically reset the `number`.
   ///
   ///#example(```typ
@@ -424,8 +449,8 @@
   ///
   /// #corollary(numbering-depth: 2)[blah]
   /// ```, scale-preview: 90%)
-  /// -> integer
-  numbering-depth: 1,
+  /// -> auto | int
+  numbering-depth: auto,
   /// Title of the Theorem. Usually shown in parentheses after the number.
   ///
   /// _This can also be passed as apositional argument._
@@ -512,12 +537,14 @@
   let toctitle = if toctitle == auto { title } else { toctitle }
 
   context {
-    if heading.numbering != none and numbering-depth > 0 {
+    let nd = if numbering-depth == auto { _thm-config.get().numbering-depth } else { numbering-depth }
+
+    if heading.numbering != none and nd > 0 {
       let prev = query(selector(<_thm_marker>).before(here()))
       if prev.len() != 0 {
         let prev = prev.last()
-        let h = _first-n(counter(heading).get(), numbering-depth)
-        if _first-n(counter(heading).at(prev.location()), numbering-depth) != h {
+        let h = _first-n(counter(heading).get(), nd)
+        if _first-n(counter(heading).at(prev.location()), nd) != h {
           thm-counter.update(0)
         }
       }
@@ -535,14 +562,16 @@
     return old
   })
   context {
-    let thmnr = thm-counter.display("1")
+    let numbering = if numbering == auto { _thm-config.get().numbering } else { numbering }
+    let thmnr = thm-counter.display(numbering)
     let number = number
     if number == auto or type(number) == int {
-      if heading.numbering == none or numbering-depth <= 0 {
+      let nd = if numbering-depth == auto { _thm-config.get().numbering-depth } else { numbering-depth }
+      if heading.numbering == none or nd <= 0 {
         number = thmnr
       } else {
-        let h = _first-n(counter(heading).get(), numbering-depth)
-        let h_fmt = numbering(heading.numbering, ..h)
+        let h = _first-n(counter(heading).get(), nd)
+        let h_fmt = std.numbering(heading.numbering, ..h)
         if type(h_fmt) == str {
           h_fmt = h_fmt.trim(".", at: end)
         }
@@ -693,44 +722,44 @@
     if it.supplement == [?] {
       link(it.target, [#val.supplement])
     } // else if it.supplement == [-] {
-     //   if val.number != none {
-     //     link(it.target, [#val.supplement #val.number])
-     //   } else if val.title != none {
-     //     link(it.target, [#val.supplement (#val.title)])
-     //   } else {
-     //     link(it.target, [#val.supplement])
-     //   }
-     // } else if it.supplement == [--] {
-     //   if val.number != none {
-     //     link(it.target, [#val.number])
-     //   } else if val.title != none {
-     //     link(it.target, [(#val.title)])
-     //   } else {
-     //     link(it.target, [*??*])
-     //   }
-     // } else if it.supplement == [!] {
-     //   if val.title != none {
-     //     link(it.target, [#val.title])
-     //   } else if val.title != none {
-     //     link(it.target, [(#val.title)])
-     //   } else {
-     //     link(it.target, [*??*])
-     //   }
-     // } else if it.supplement == [!!] {
-     //   link(it.target, [#val.title (#val.number)])
-     // } else if it.supplement == [!!!] {
-     //   link(it.target, [#val.title (#val.supplement #val.number)])
-     // } else if it.supplement == auto {
-     //   if val.number != none {
-     //     link(it.target, [#val.number])
-     //   } else if val.title != none {
-     //     link(it.target, [(#val.title)])
-     //   } else {
-     //     link(it.target, [*??*])
-     //   }
-     // } else {
-     //   link(it.target, [#it.supplement #val.number (#val.title)])
-     // }
+    //   if val.number != none {
+    //     link(it.target, [#val.supplement #val.number])
+    //   } else if val.title != none {
+    //     link(it.target, [#val.supplement (#val.title)])
+    //   } else {
+    //     link(it.target, [#val.supplement])
+    //   }
+    // } else if it.supplement == [--] {
+    //   if val.number != none {
+    //     link(it.target, [#val.number])
+    //   } else if val.title != none {
+    //     link(it.target, [(#val.title)])
+    //   } else {
+    //     link(it.target, [*??*])
+    //   }
+    // } else if it.supplement == [!] {
+    //   if val.title != none {
+    //     link(it.target, [#val.title])
+    //   } else if val.title != none {
+    //     link(it.target, [(#val.title)])
+    //   } else {
+    //     link(it.target, [*??*])
+    //   }
+    // } else if it.supplement == [!!] {
+    //   link(it.target, [#val.title (#val.number)])
+    // } else if it.supplement == [!!!] {
+    //   link(it.target, [#val.title (#val.supplement #val.number)])
+    // } else if it.supplement == auto {
+    //   if val.number != none {
+    //     link(it.target, [#val.number])
+    //   } else if val.title != none {
+    //     link(it.target, [(#val.title)])
+    //   } else {
+    //     link(it.target, [*??*])
+    //   }
+    // } else {
+    //   link(it.target, [#it.supplement #val.number (#val.title)])
+    // }
     else if val.title != none {
       if val.number != none {
         if it.supplement == [-] {
@@ -1120,7 +1149,7 @@
 /// -> content
 #let toc(
   /// Maximum depth of headings to conisder
-  /// -> integer
+  /// -> int
   depth: 2,
   /// list of @theorem.kind#[]s to ignore.
   /// #example(```typ
@@ -1135,7 +1164,7 @@
   /// -> array (string)
   exclude: ("proof", "solution"),
   /// Fake level to use for theorems. If `auto`, it will use `depth + 1`.
-  /// -> integer | auto
+  /// -> int | auto
   level: auto,
   /// Customize @toc-entry used.
   ///
