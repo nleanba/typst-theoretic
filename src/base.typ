@@ -280,6 +280,14 @@
   )
 }
 
+#let _first-n(arr, n) = {
+  if arr.len() >= n {
+    arr.slice(0, n)
+  } else {
+    arr + (0,) * (n - arr.len())
+  }
+}
+
 /// Theorem Environment
 ///
 /// #example(```typ
@@ -397,6 +405,27 @@
   /// ```, scale-preview: 90%)
   /// -> auto | none | integer | content
   number: auto,
+  /// How many levels of the heading counter the theorem numbering should inherit. (Ignored if headings are not numbered)
+  ///
+  /// Note that this uses the numbering set on ```typc heading()```, which may differ from the numbering for ```typc heading(level: ..)```. Make sure to ```typ #set heading(numbering: ..)``` for the intended result.
+  ///
+  /// Note that changing the `numbering-depth` does not automatically reset the `number`.
+  ///
+  ///#example(```typ
+  /// >>> // #thm-counter.update(0)
+  /// >>> // #counter(heading).update(0)
+  /// >>> // #set heading(numbering: "1.1.")
+  /// >>> #let corollary = theorem.with(
+  /// >>>  kind: "corollary",
+  /// >>>  supplement: "Corollary")
+  /// #corollary(numbering-depth: 0)[blah]
+  ///
+  /// #corollary(numbering-depth: 1)[blah]
+  ///
+  /// #corollary(numbering-depth: 2)[blah]
+  /// ```, scale-preview: 90%)
+  /// -> integer
+  numbering-depth: 1,
   /// Title of the Theorem. Usually shown in parentheses after the number.
   ///
   /// _This can also be passed as apositional argument._
@@ -483,12 +512,12 @@
   let toctitle = if toctitle == auto { title } else { toctitle }
 
   context {
-    if heading.numbering != none {
+    if heading.numbering != none and numbering-depth > 0 {
       let prev = query(selector(<_thm_marker>).before(here()))
       if prev.len() != 0 {
         let prev = prev.last()
-        let h = counter(heading).get().first()
-        if counter(heading).at(prev.location()).first() != h {
+        let h = _first-n(counter(heading).get(), numbering-depth)
+        if _first-n(counter(heading).at(prev.location()), numbering-depth) != h {
           thm-counter.update(0)
         }
       }
@@ -509,11 +538,11 @@
     let thmnr = thm-counter.display("1")
     let number = number
     if number == auto or type(number) == int {
-      if heading.numbering == none {
+      if heading.numbering == none or numbering-depth <= 0 {
         number = thmnr
       } else {
-        let h = counter(heading).get().first()
-        let h_fmt = numbering(heading.numbering, h)
+        let h = _first-n(counter(heading).get(), numbering-depth)
+        let h_fmt = numbering(heading.numbering, ..h)
         if type(h_fmt) == str {
           h_fmt = h_fmt.trim(".", at: end)
         }
