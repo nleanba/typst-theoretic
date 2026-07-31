@@ -1149,7 +1149,7 @@
 /// -> content
 #let toc(
   /// Maximum depth of headings to conisder
-  /// -> int
+  /// -> int | auto
   depth: 2,
   /// list of @theorem.kind#[]s to ignore.
   /// #example(```typ
@@ -1193,7 +1193,7 @@
   /// -> bool
   sort: false,
 ) = context {
-  let level = if level == auto { depth + 1 } else { level }
+  let curr = 0
   let thms = query(selector(<_thm>).or(heading))
   if depth == 0 and sort {
     thms = array(thms)
@@ -1227,7 +1227,8 @@
     }
     if type(thm) != dictionary and thm.func() == heading {
       let level = thm.level
-      if level > depth or thm.outlined == false { continue }
+      if (depth != auto and level > depth) or thm.outlined == false  { continue }
+      curr = level
       let number = none
       if thm.numbering != none {
         number = numbering(thm.numbering, ..counter(heading).at(loc))
@@ -1236,7 +1237,9 @@
       // linebreak()
       toc-entry(level, loc, number, thm.body, p)
       // outline.entry(level, thm)
+
     } else {
+      let level = if level == auto {curr+1} else {level}
       let base = query(selector(metadata).after(loc, inclusive: false)).first().value
       if base == () or base.theorem-kind in exclude { continue }
       if type(thm.value.toctitle) == array {
